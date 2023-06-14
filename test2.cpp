@@ -113,17 +113,17 @@ bool Relaxation(HG H){
     std::vector<bel> L;
     std::vector<std::vector<bel>> B;
     std::vector<bel> bi = {wahr, falsch};
-    std::queue<var> S;
+    std::vector<var> S;
     for(int i=0; i<H.variables(); i++){
             B.push_back(bi);
-            S.push(var(i));
+            S.push_back(var(i));
         }
     while(true){
         if(S.size() == 0){
             break;
         };
-        var u = S.front();
-        S.pop();
+        var u = S[0];
+        S.erase(S.begin());
         bool skip = false;
         std::vector<bel> Deduceu;
         for(bel l : B[u.get_var()]){
@@ -150,13 +150,20 @@ bool Relaxation(HG H){
                 H.set_belegung(u.get_var(), Deduceu[0]);          //Property 1
             }
         }
-        bool contradiction = simplifyUR(H);           //contradiction == true heißt es gibt keine
+        bool contradiction = H.SimplifyUR();           //contradiction == true heißt es gibt keine
         if(contradiction == false){
             return false;
         
         }
-        for(int i=0; i<H.variables(); i++){
-            ///hier irgendwie Dinge mit S machen;
+        std::vector<bel> belegung = H.get_belegung();
+        for(int i=0; i<belegung.size(); i++){
+            if(belegung[i] != null){
+                for(int l=0; l<S.size(); l++){
+                    if(S[l].get_var() == i){
+                        S.erase(S.begin()+l);
+                    }
+                }
+            }
         }
     }
 
@@ -185,7 +192,4 @@ bel tvalue(var u, harc a){
     }
 }
 
-bool simplifyUR(HG& H){
-    return false;
-}
 
