@@ -23,8 +23,8 @@ class HG{
         bool empty();
         harc& give_harc(int i);  
         std::vector<var> give_harc_as_vec(int i) const; 
-        var root(std::vector <var> h);   
-        var shrink(std::vector <var> h); 
+        var root(std::vector <int> h);   
+        var shrink(std::vector <int> h); 
         void set_values();
         HG binary();
         void Branching_True(var p);
@@ -36,6 +36,7 @@ class HG{
         var get_P(var v);
         void set_valuesT1();
         void set_valuesP1();
+        std::vector<var> get_vars();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause
         std::vector<bel> belegung;                                         //als vector von int 0,1,2 mit 2 als noch nicht belegt/gleichzeitig wahr und falsch, die erste Stelle entspricht keiner Variable und wird evtl. für der depth der besetzte Variablen benutzt

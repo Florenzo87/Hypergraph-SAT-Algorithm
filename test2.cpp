@@ -10,6 +10,22 @@
 #include <queue>
 #include "hypergraph.hpp"
 
+bool DPL(HG H);
+var Deduce(HG& H, var u, bel l);
+bool Restriction(HG P);
+bool Relaxation(HG H);
+harc shrink(HG H, harc a, var w);
+bel tvalue(var u, harc a);
+void print(const std::vector<bel>& vec);
+
+
+int main(int argc, char** argv){
+    HG H(argv[1]);
+    bool loesbar = DPL(H);
+    std::cout << loesbar << std::endl;
+    return 0;
+}
+
 
 bool DPL(HG H){
     std::stack<HG> Q;
@@ -23,6 +39,7 @@ bool DPL(HG H){
             P = Q.top();
             Q.pop();
         }
+        print(P.get_belegung());
         P.SimplifyUR();
         if(P.empty()){
             return true;
@@ -86,17 +103,17 @@ var Deduce(HG& H, var u, bel l){
         if (a.give_harc1().size() == 2){
             var b = shrink(H, a, H.root(a.give_harc1())).give_harc2()[0][0];
             var v(0);
-            if(a.give_harc2()[0][0].get_var() != b.get_var()){
+            if(a.give_harc2()[0][0] != b.get_var()){
                 var v = a.give_harc2()[0][0];
             }
             else{
                 var v = a.give_harc2()[1][0];
             }
-            if(L[a.give_harc2()[0][0].get_var()] == null){
+            if(L[a.give_harc2()[0][0]] == null){
                     H.set_P(v, u);
                     Deduce(H, v, tvalue(v,a));
                 }
-            else if(L[a.give_harc2()[0][0].get_var()] != tvalue(v,a)){
+            else if(L[a.give_harc2()[0][0]] != tvalue(v,a)){
                 return v;
             }
         }
@@ -166,14 +183,15 @@ bool Relaxation(HG H){
             }
         }
     }
+    return false;
 
 }
 
 harc shrink(HG H, harc a, var w){
     H = H.binary();
     var u = H.shrink(a.give_harc1());
-    std::vector<var> normal = {u};
-    std::vector<var> negiert = {w};
+    std::vector<int> normal = {u.get_var()};
+    std::vector<int> negiert = {w.get_var()};
     harc as(normal, negiert, H.num_harcs());
     return as;
 }
@@ -190,6 +208,12 @@ bel tvalue(var u, harc a){
             val = falsch;
         }
     }
+    return val;
 }
 
-
+void print(const std::vector<bel>& vec){                               
+        for(int i = 0; i < int(vec.size()); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
+}

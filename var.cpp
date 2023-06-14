@@ -1,9 +1,13 @@
 #include <iostream>
 #include <vector>
-#include "var.hpp"x
+#include "var.hpp"
 
 var::var(int i){
     variable = i;
+}
+
+int var::get_var() const{
+    return variable;
 }
 
 void var::set_value(int i){
@@ -44,4 +48,5 @@ int var::W(int k){
         }
     }
     int W = FSk + BSk + (1.5*std::min(BSk, FSk));
+    return W;
 }
