@@ -45,7 +45,9 @@ bool DPL(HG H){
             return true;
         }
         if(Relaxation(P) == true){
-            if(Restriction(P) == true){
+            std::cout << "Relaxation is true" << std::endl;
+            if(P.Restriction() == true){
+                std::cout << "Restriction is true" << std::endl;
                 return true;
             }
             int k = H.minimal_harc();
@@ -133,7 +135,7 @@ bool Relaxation(HG H){
     std::vector<var> S;
     for(int i=0; i<H.variables(); i++){
             B.push_back(bi);
-            S.push_back(var(i));
+            S.push_back(H.get_vars()[i]);
         }
     while(true){
         if(S.size() == 0){
@@ -143,8 +145,8 @@ bool Relaxation(HG H){
         S.erase(S.begin());
         bool skip = false;
         std::vector<bel> Deduceu;
-        for(bel l : B[u.get_var()]){
-            std::vector<bel> altbelegung;
+        for(bel l : B[u.get_var()-1]){
+            std::vector<bel> altbelegung = H.get_belegung();
             var v = Deduce(H, u, l);
             Deduceu.push_back(H.get_belegung()[u.get_var()]);
             if (v.get_var() != 0){
@@ -155,7 +157,12 @@ bool Relaxation(HG H){
                 L = H.get_belegung();
                 H.set_belegung(altbelegung);
                 for(int i=0; i<B.size(); i++){
-                   B[i].erase(std::find(B[i].begin(),B[i].end(),L[i]));
+                    //std::cout << i << std::endl;
+                    for(int j=0; j<B[i].size(); j++){
+                        if(B[i][j] == L[i]){
+                            B[i].erase(B[i].begin()+j);
+                        }
+                    }
                 }
                 if(B[u.get_var()].size() == 1){
                     skip = true;
@@ -183,7 +190,7 @@ bool Relaxation(HG H){
             }
         }
     }
-    return false;
+    return true;
 
 }
 

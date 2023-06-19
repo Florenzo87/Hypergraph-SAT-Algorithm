@@ -10,9 +10,7 @@
 #include "hypergraph.hpp"
 
 
-
-HG::HG(const std::string filename)                                               
-{
+HG::HG(const std::string filename){
      std::string line;
      std::ifstream myfile (filename);
      if (myfile.is_open())
@@ -28,6 +26,8 @@ HG::HG(const std::string filename)
                          break;
                     }
           }
+          F = var(var_num+1);
+          T = var(var_num+2);
           std::vector<std::vector<harc>> FS;
           std::vector<std::vector<harc>> BS;
           for (int i=1; i < var_num+1; i++){
@@ -39,6 +39,8 @@ HG::HG(const std::string filename)
                BS.push_back(empty);  
                Predecessor.push_back(var(i));
           }
+          vars.push_back(F);
+          vars.push_back(T);
           int clausel = 0;
           while ( getline (myfile,line) )
           {
@@ -60,6 +62,12 @@ HG::HG(const std::string filename)
                                     BSv.push_back(-n);
                                 }   
                          }
+                    }
+                    if(vec1.size() == 0){
+                         vec1.push_back(var_num+1);
+                    }
+                    if(vec2.size() == 0){
+                         vec2.push_back(var_num+2);
                     }
                     harc cls = harc(vec1, vec2, clausel);
                     for (int v : FSv){
@@ -339,4 +347,38 @@ void HG::set_valuesT1(){
         
 void HG::set_valuesP1(){
 
+}
+
+bool HG::Restriction(){
+     std::vector<int> A = branching(var_num+1);
+     for(int i: A){
+          if(i = var_num+2){
+               return false;
+          }
+     }
+     return true;
+}
+
+std::vector<int> HG::branching(int i){
+     std::queue<int> q;
+     q.push(i);
+     std::vector<int> besuche;
+     while(q.empty() == false){
+          for(harc a : vars[q.front()-1].get_FS()){
+               for(int i : a.give_harc2()[0]){
+                    bool besucht = false;
+                    for(int j : besuche){
+                         if(i == j){
+                              besucht = true;
+                         }
+                    }
+                    if(besucht == false){
+                         besuche.push_back(i);
+                         q.push(i);
+                    }
+               }
+          }
+          q.pop();
+     }
+     return besuche;
 }

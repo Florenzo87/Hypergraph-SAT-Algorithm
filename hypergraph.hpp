@@ -37,6 +37,8 @@ class HG{
         void set_valuesT1();
         void set_valuesP1();
         std::vector<var> get_vars();
+        std::vector<int> branching(int i);
+        bool Restriction();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause
         std::vector<bel> belegung;                                         //als vector von int 0,1,2 mit 2 als noch nicht belegt/gleichzeitig wahr und falsch, die erste Stelle entspricht keiner Variable und wird evtl. für der depth der besetzte Variablen benutzt
@@ -45,4 +47,6 @@ class HG{
         int harcs;                                                        //Anzahl an harcs
         std::vector<std::vector<harc>> harcs_der_variable;                //in welche arcs sich jede Variable befindet
         std::vector<var> Predecessor;
+        var F;
+        var T;
 };
