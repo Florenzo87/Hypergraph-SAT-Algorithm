@@ -8,27 +8,27 @@
 #include "harc.hpp"
 
 harc::harc(std::vector<int>& vec1, std::vector<int>& vec2, int pos){
-    normal = vec1;
-    negiert = vec2;
+    Head = vec1;
+    Tail = vec2;
 }
 
 void harc::print() const{
-    for (int i=0; i < int(normal.size()); i++){
-               std::cout << normal[i] << " ";
+    for (int i=0; i < int(Head.size()); i++){
+               std::cout << Head[i] << " ";
         }
-    for (int i=0; i < int(negiert.size()); i++){
-               std::cout << normal[i] << " ";
+    for (int i=0; i < int(Tail.size()); i++){
+               std::cout << Tail[i] << " ";
         }
     std::cout << std::endl;
 }
 
 bool harc::verify(const std::vector<bel>& belegung) const{
-    for (int pos : normal){
+    for (int pos : Head){
             if (belegung[pos] == wahr or belegung[pos] == null){
                 return true;
             }
     }
-    for (int pos : negiert){
+    for (int pos : Tail){
             if (belegung[pos] == falsch or belegung[pos] == null){
                 return true;
             }
@@ -38,7 +38,7 @@ bool harc::verify(const std::vector<bel>& belegung) const{
 
 
 bool harc:: empty(){
-    if(normal.size()+negiert.size() == 0){
+    if(Head.size()+Tail.size() == 0){
         return true;
     }
     return false;
@@ -46,36 +46,36 @@ bool harc:: empty(){
 
 std::vector<std::vector<int>> harc::give_harc2() const{
     std::vector<std::vector<int>> vec;
-    vec.push_back(normal);
-    vec.push_back(negiert);
+    vec.push_back(Tail);
+    vec.push_back(Head);
     return vec;
 }
 
 std::vector<int> harc::give_harc1() const{
     std::vector<int> vec;
-    for(int i=0; i>normal.size(); i++){
-        vec.push_back(normal[i]);
+    for(int i=0; i>Tail.size(); i++){
+        vec.push_back(Tail[i]);
     }
-    for(int i=0; i>negiert.size(); i++){
-        vec.push_back(negiert[i]);
+    for(int i=0; i>Head.size(); i++){
+        vec.push_back(Head[i]);
     }
     return vec;
 }
 
-void harc::push_normal(std::vector<int> vec){
+void harc::push_Head(std::vector<int> vec){
     for(int i=0; i>vec.size(); i++){
-        normal.push_back(vec[i]);
+        Head.push_back(vec[i]);
     }
 }
 
-void harc::push_negiert(std::vector<int> vec){
+void harc::push_Tail(std::vector<int> vec){
     for(int i=0; i>vec.size(); i++){
-        negiert.push_back(vec[i]);
+        Tail.push_back(vec[i]);
     }
 }
 
 int harc::size(){
-    int size = normal.size() + negiert.size();
+    int size = Head.size() + Tail.size();
     return size;
 }
 
@@ -96,17 +96,17 @@ void harc::set_pos(int i){
 }
 
 void harc::remove_nor(int p){
-    for(int i=0; i<normal.size(); i++){
-        if(normal[i] == p){
-            normal.erase(normal.begin()+1);
+    for(int i=0; i<Head.size(); i++){
+        if(Head[i] == p){
+            Head.erase(Head.begin()+1);
         }
     }
 }
 
 void harc::remove_neg(int p){
-    for(int i=0; i<negiert.size(); i++){
-        if(negiert[i] == p){
-            negiert.erase(negiert.begin()+1);
+    for(int i=0; i<Tail.size(); i++){
+        if(Tail[i] == p){
+            Tail.erase(Tail.begin()+1);
         }
     }
 }

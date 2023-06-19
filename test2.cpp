@@ -21,6 +21,7 @@ void print(const std::vector<bel>& vec);
 
 int main(int argc, char** argv){
     HG H(argv[1]);
+    //H.print();
     bool loesbar = DPL(H);
     std::cout << loesbar << std::endl;
     return 0;
@@ -39,7 +40,7 @@ bool DPL(HG H){
             P = Q.top();
             Q.pop();
         }
-        print(P.get_belegung());
+        //P.print();
         P.SimplifyUR();
         if(P.empty()){
             return true;
@@ -51,7 +52,9 @@ bool DPL(HG H){
                 return true;
             }
             int k = H.minimal_harc();
+            std::cout << k << std::endl;
             var p = P.branch_var(k);
+            std::cout << p.get_var() << std::endl;
             HG PT = P;
             HG PF = P;
             PT.Branching_True(p);
@@ -197,9 +200,9 @@ bool Relaxation(HG H){
 harc shrink(HG H, harc a, var w){
     H = H.binary();
     var u = H.shrink(a.give_harc1());
-    std::vector<int> normal = {u.get_var()};
-    std::vector<int> negiert = {w.get_var()};
-    harc as(normal, negiert, H.num_harcs());
+    std::vector<int> Head = {u.get_var()};
+    std::vector<int> Tail = {w.get_var()};
+    harc as(Head, Tail, H.num_harcs());
     return as;
 }
 

@@ -6,6 +6,7 @@
 class var{
     public:
     var(int i);
+    var();
     void set_value(int i);
     int get_value() const;
     int get_var() const;

@@ -26,8 +26,9 @@ HG::HG(const std::string filename){
                          break;
                     }
           }
-          F = var(var_num+1);
+          F = var(var_num+1); //sie werden zu zwei weniger da wir var_num vergrößern
           T = var(var_num+2);
+          var_num += 2;
           std::vector<std::vector<harc>> FS;
           std::vector<std::vector<harc>> BS;
           for (int i=1; i < var_num+1; i++){
@@ -39,13 +40,13 @@ HG::HG(const std::string filename){
                BS.push_back(empty);  
                Predecessor.push_back(var(i));
           }
-          vars.push_back(F);
-          vars.push_back(T);
+          //vars.push_back(F);
+          //vars.push_back(T);
           int clausel = 0;
           while ( getline (myfile,line) )
           {
-                    std::vector<int> vec1 = {};
-                    std::vector<int> vec2 = {};
+                    std::vector<int> head = {};
+                    std::vector<int> tail = {};
                     std::vector<int> FSv = {};
                     std::vector<int> BSv = {};
                     std::vector<int> harcs_der_variable_v = {};
@@ -54,38 +55,38 @@ HG::HG(const std::string filename){
                     while( is >> n ) {
                          if (n != 0){
                                 if (n>0){
-                                    vec1.push_back(n);
-                                    FSv.push_back(n);
+                                    head.push_back(n);
+                                    BSv.push_back(n);
                                 }
                                 else{
-                                    vec2.push_back(-n);
-                                    BSv.push_back(-n);
+                                    tail.push_back(-n);
+                                    FSv.push_back(-n);
                                 }   
                          }
                     }
-                    if(vec1.size() == 0){
-                         vec1.push_back(var_num+1);
+                    if(head.size() == 0){
+                         head.push_back(var_num-1);
+                         BSv.push_back(var_num-1);
                     }
-                    if(vec2.size() == 0){
-                         vec2.push_back(var_num+2);
+                    if(tail.size() == 0){
+                         tail.push_back(var_num);
+                         FSv.push_back(var_num);
                     }
-                    harc cls = harc(vec1, vec2, clausel);
+                    harc cls = harc(tail, head, clausel);
                     for (int v : FSv){
                          FS[v].push_back(cls);
-                         harcs_der_variable[v].push_back(cls);
                     }
                     for (int v : BSv){
                          BS[v].push_back(cls);
-                         harcs_der_variable[v].push_back(cls);
                     }
                     hgraph.push_back(cls);
-                    for(var v : vars){
-                         v.set_FS(FS[v.get_var()]);
-                         v.set_BS(BS[v.get_var()]);
-                    }
                     clausel += 1;                      
           }
           myfile.close();
+          for(var v : vars){
+               v.set_FS(FS[v.get_var()]);
+               v.set_BS(BS[v.get_var()]);
+          }
      }
 
      else std::cout << "Unable to open file"; 
@@ -99,9 +100,9 @@ HG::HG(std::vector<harc> vec, int i){
 }
 
 void HG::print() const{
-     std::cout << var_num << harcs << std::endl;
-     for (int i=0; i < harcs; i++){
-          hgraph[i].print();
+     std::cout << var_num << " " << harcs << std::endl;
+     for (harc h : hgraph){
+          h.print();
      }
 }
 
@@ -293,7 +294,7 @@ void HG::Branching_False(var p){
 }
 
 int HG::minimal_harc(){
-     int size;
+     int size = var_num;
      for(harc a : hgraph){
           size = std::min(size, a.size());
      }
@@ -304,6 +305,7 @@ var HG::branch_var(int k){
      int max = 0;
      var p(0);
      for(var u : vars){
+          //std::cout << u.W(k) << std::endl;
           if(u.W(k) > max){
                max = u.W(k);
                p = u;
@@ -350,9 +352,9 @@ void HG::set_valuesP1(){
 }
 
 bool HG::Restriction(){
-     std::vector<int> A = branching(var_num+1);
+     std::vector<int> A = branching(var_num-1);
      for(int i: A){
-          if(i = var_num+2){
+          if(i == var_num){
                return false;
           }
      }
