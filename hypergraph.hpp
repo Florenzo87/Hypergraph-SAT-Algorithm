@@ -38,6 +38,7 @@ class HG{
         void set_valuesP1();
         std::vector<var> get_vars();
         std::vector<int> branching(int i);
+        std::vector<int> branchingFT();
         bool Restriction();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause

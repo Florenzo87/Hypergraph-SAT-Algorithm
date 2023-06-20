@@ -7,6 +7,7 @@ enum bel {falsch, wahr, null};
 class harc{
     public:
         harc(std::vector<int>& Head, std::vector<int>& Tail, int pos);                                      //Baut ein harc element aus ein Vektor von ints
+        harc();
         void print() const;                                                 //print
         bool verify(const std::vector<bel>& belegung) const;                //uberprüft anhand einer gegebene Belegung ob diese bei die Klausel gültig ist
         bool empty();

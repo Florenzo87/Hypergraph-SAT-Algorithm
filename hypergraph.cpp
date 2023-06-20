@@ -384,3 +384,31 @@ std::vector<int> HG::branching(int i){
      }
      return besuche;
 }
+
+std::vector<int> HG::branchingFT(){
+     std::queue<int> q;
+     q.push(var_num-1);
+     std::vector<int> besuche;
+     while(q.empty() == false){
+          for(harc a : vars[q.front()-1].get_FS()){
+               for(int i : a.give_harc2()[0]){
+                    bool besucht = false;
+                    for(int j : besuche){
+                         if(i == j){
+                              besucht = true;
+                         }
+                    }
+                    if(besucht == false){
+                         besuche.push_back(i);
+                         q.push(i);
+                    }
+                    if(i == var_num){
+                         return a.give_harc2()[0];
+                    }
+               }
+          }
+          q.pop();
+     }
+     std::vector<int> empty;
+     return empty;
+}

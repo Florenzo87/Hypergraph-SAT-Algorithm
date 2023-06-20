@@ -7,9 +7,17 @@
 #include <algorithm>
 #include "harc.hpp"
 
-harc::harc(std::vector<int>& vec1, std::vector<int>& vec2, int pos){
+harc::harc(std::vector<int>& vec1, std::vector<int>& vec2, int position){
     Head = vec1;
     Tail = vec2;
+    pos = position;
+}
+
+harc::harc(){
+    std::vector<int> empty;
+    Head = empty;
+    Tail = empty;
+    pos = 0;
 }
 
 void harc::print() const{

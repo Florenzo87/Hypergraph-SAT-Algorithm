@@ -47,7 +47,7 @@ bool DPL(HG H){
         }
         if(Relaxation(P) == true){
             std::cout << "Relaxation is true" << std::endl;
-            if(P.Restriction() == true){
+            if(Restriction(P) == true){
                 std::cout << "Restriction is true" << std::endl;
                 return true;
             }
@@ -128,6 +128,23 @@ var Deduce(HG& H, var u, bel l){
 }
 
 bool Restriction(HG P){
+    std::queue<HG> problems;
+    problems.push(P);
+    while(problems.front().Restriction() == false){
+        std::vector<int> h = P.branchingFT();
+        for(int i=0; i<h.size(); i++){
+            HG Pi = P;
+            for(int j=0; j<i; j++){
+                Pi.Branching_False(h[j]);
+            }
+            Pi.Branching_True(h[i]);
+            problems.push(Pi);
+        }
+        problems.pop();
+    }
+    if(problems.front().Restriction() == true){
+        return true;
+    }
     return false;
 }
 
