@@ -21,7 +21,7 @@ void print(const std::vector<bel>& vec);
 
 int main(int argc, char** argv){
     HG H(argv[1]);
-    //H.print();
+    //H.printFSBS();
     bool loesbar = DPL(H);
     std::cout << loesbar << std::endl;
     return 0;
@@ -40,21 +40,22 @@ bool DPL(HG H){
             P = Q.top();
             Q.pop();
         }
-        //P.print();
+        P.print();
         P.SimplifyUR();
         if(P.empty()){
             return true;
         }
         if(Relaxation(P) == true){
             std::cout << "Relaxation is true" << std::endl;
-            if(Restriction(P) == true){
+            if(P.Restriction() == true){
                 std::cout << "Restriction is true" << std::endl;
                 return true;
             }
+            std::cout << "Restriction is false" << std::endl;
             int k = H.minimal_harc();
-            std::cout << k << std::endl;
+            std::cout << "k=" << k << std::endl;
             var p = P.branch_var(k);
-            std::cout << p.get_var() << std::endl;
+            std::cout << "p=" << p.get_var() << std::endl;
             HG PT = P;
             HG PF = P;
             PT.Branching_True(p);
@@ -69,6 +70,7 @@ bool DPL(HG H){
             }
         }
     }
+    return false;
 }
 
 var Deduce(HG& H, var u, bel l){
@@ -149,6 +151,7 @@ bool Restriction(HG P){
 }
 
 bool Relaxation(HG H){
+    return true;
     std::vector<bel> L;
     std::vector<std::vector<bel>> B;
     std::vector<bel> bi = {wahr, falsch};

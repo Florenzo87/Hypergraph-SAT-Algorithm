@@ -12,7 +12,9 @@ class HG{
         bool verify(const int erste_geaenderte_variable, const int letzte_geaenderte_variable) const;   //uberprüft ob die Belegung richtig ist aber nur an der Klauseln in der sich die geänderte Variablen befindet
         int backtrack_until() const;                                        //findet die kleinste Variable die die grösste in ihrer (falsche) Klausel ist
         void print() const;                                                 //druckt den HG auf die Konsole, jede Klausel auf einer Zeile
+        void printFSBS();
         HG(const std::string filename);                                    //baut HG element aus den gegebenen Textdokument
+        HG(std::vector<std::vector<int>>);
         HG(std::vector<harc> vec, int i);
         void set_belegung(const std::vector<bel>& neubelegung);             //Belegung ändern zu den gegebenen Vektor, Achtung: überprüft nicht ob dieser die richtige Länge hat
         void set_belegung(const int pos, const bel val);                    //Belegung an der gegebene Position zum gegebenen Wert ändern
@@ -29,6 +31,8 @@ class HG{
         HG binary();
         void Branching_True(var p);
         void Branching_False(var p);
+        HG Branching_True2(var p);
+        HG Branching_False2(var p);
         int minimal_harc();
         var branch_var(int k);
         bool SimplifyUR();
@@ -37,7 +41,7 @@ class HG{
         void set_valuesT1();
         void set_valuesP1();
         std::vector<var> get_vars();
-        std::vector<int> branching(int i);
+        std::vector<bool> Bbranching(int i);
         std::vector<int> branchingFT();
         bool Restriction();
     private:
@@ -50,4 +54,7 @@ class HG{
         std::vector<var> Predecessor;
         var F;
         var T;
+        //std::vector<int> index_harc;                                         gibt an wo sich die variablen des ursprünglichen Problem befinden
+        //std::vector<std::vector<harc>> FS;
+        //std::vector<std::vector<harc>> BS;
 };

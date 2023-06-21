@@ -13,6 +13,7 @@ class harc{
         bool empty();
         std::vector<std::vector<int>> give_harc2() const;
         std::vector<int> give_harc1() const;
+        std::vector<int> give_harc1neg() const;
         void push_Head(std::vector<int>);
         void push_Tail(std::vector<int>);
         int size();

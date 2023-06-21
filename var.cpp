@@ -22,11 +22,11 @@ int var::get_value() const{
     return value;
 }
 
-std::vector<harc> var::get_FS(){
+std::vector<harc>& var::get_FS(){
     return FS;
 }
 
-std::vector<harc> var::get_BS(){
+std::vector<harc>& var::get_BS(){
     return BS;
 }
 
@@ -41,19 +41,19 @@ void var::set_BS(std::vector<harc> h){
 int var::W(int k){
     int FSk = 0;
     int BSk = 0;
-    std::cout << FS.size() <<std::endl;
+    //std::cout << FS.size() <<std::endl;
     for(harc a : FS){
         if (a.size() == k){
             FSk += 1;
         }
     }
-    std::cout << BS.size() <<std::endl;
+    //std::cout << BS.size() <<std::endl;
     for(harc a : BS){
         if (a.size() == k){
             BSk += 1;
         }
     }
-    std::cout << FSk << BSk << std::endl;
+    //std::cout << FSk << BSk << std::endl;
     int W = FSk + BSk + (1.5*std::min(BSk, FSk));
     return W;
 }

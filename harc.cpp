@@ -8,8 +8,8 @@
 #include "harc.hpp"
 
 harc::harc(std::vector<int>& vec1, std::vector<int>& vec2, int position){
-    Head = vec1;
-    Tail = vec2;
+    Tail = vec1;
+    Head = vec2;
     pos = position;
 }
 
@@ -25,7 +25,7 @@ void harc::print() const{
                std::cout << Head[i] << " ";
         }
     for (int i=0; i < int(Tail.size()); i++){
-               std::cout << Tail[i] << " ";
+               std::cout << "-" << Tail[i] << " ";
         }
     std::cout << std::endl;
 }
@@ -70,6 +70,17 @@ std::vector<int> harc::give_harc1() const{
     return vec;
 }
 
+std::vector<int> harc::give_harc1neg() const{
+    std::vector<int> vec;
+    for(int i=0; i>Tail.size(); i++){
+        vec.push_back(-Tail[i]);
+    }
+    for(int i=0; i>Head.size(); i++){
+        vec.push_back(Head[i]);
+    }
+    return vec;
+}
+
 void harc::push_Head(std::vector<int> vec){
     for(int i=0; i>vec.size(); i++){
         Head.push_back(vec[i]);
@@ -106,7 +117,13 @@ void harc::set_pos(int i){
 void harc::remove_nor(int p){
     for(int i=0; i<Head.size(); i++){
         if(Head[i] == p){
-            Head.erase(Head.begin()+1);
+            std::cout << pos << " " << i <<std::endl;
+            if(i == 0){
+                Head.erase(Head.begin());
+            }
+            else{
+            Head.erase(Head.begin()+i);
+            }
         }
     }
 }
@@ -114,7 +131,7 @@ void harc::remove_nor(int p){
 void harc::remove_neg(int p){
     for(int i=0; i<Tail.size(); i++){
         if(Tail[i] == p){
-            Tail.erase(Tail.begin()+1);
+            Tail.erase(Tail.begin()+i);
         }
     }
 }
