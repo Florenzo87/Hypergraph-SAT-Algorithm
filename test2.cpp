@@ -42,7 +42,10 @@ bool DPL(HG H){
         }
         P.print();
         P.SimplifyUR();
+        P.print();
+        P.printFSBS();
         if(P.empty()){
+            std::cout << "Solved through Unit Resolution" << std::endl;
             return true;
         }
         if(Relaxation(P) == true){
@@ -52,10 +55,10 @@ bool DPL(HG H){
                 return true;
             }
             std::cout << "Restriction is false" << std::endl;
-            int k = H.minimal_harc();
+            int k = P.minimal_harc();
             std::cout << "k=" << k << std::endl;
-            var p = P.branch_var(k);
-            std::cout << "p=" << p.get_var() << std::endl;
+            int p = P.branching_var(k);
+            std::cout << "p=" << p << std::endl;
             HG PT = P;
             HG PF = P;
             PT.Branching_True(p);

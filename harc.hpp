@@ -16,6 +16,8 @@ class harc{
         std::vector<int> give_harc1neg() const;
         void push_Head(std::vector<int>);
         void push_Tail(std::vector<int>);
+        void set_Head(std::vector<int>);
+        void set_Tail(std::vector<int>);
         int size();
         void set_value(int i);
         int get_value();

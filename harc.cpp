@@ -93,6 +93,14 @@ void harc::push_Tail(std::vector<int> vec){
     }
 }
 
+void harc::set_Head(std::vector<int> vec){
+    Head = vec;
+}
+
+void harc::set_Tail(std::vector<int> vec){
+    Tail = vec;
+}
+
 int harc::size(){
     int size = Head.size() + Tail.size();
     return size;
