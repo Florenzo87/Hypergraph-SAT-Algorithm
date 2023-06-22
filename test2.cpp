@@ -40,12 +40,15 @@ bool DPL(HG H){
             P = Q.top();
             Q.pop();
         }
-        P.print();
+        //P.print();
         P.SimplifyUR();
-        P.print();
-        P.printFSBS();
+        //P.print();
+        //P.printFSBS();
         if(P.empty()){
             std::cout << "Solved through Unit Resolution" << std::endl;
+            //print(P.get_belegung());
+            //H.set_belegung(P.get_belegung());
+            //std::cout << H.verify() << std::endl;
             return true;
         }
         if(Relaxation(P) == true){
@@ -61,15 +64,35 @@ bool DPL(HG H){
             std::cout << "p=" << p << std::endl;
             HG PT = P;
             HG PF = P;
-            PT.Branching_True(p);
-            PF.Branching_False(p);
+            bool t = PT.Branching_True(p);
+            bool f = PF.Branching_False(p);
             if(k>2){
-                Q.push(PT);
-                Q.push(PF);
+                if(t == true){
+                    Q.push(PT);
+                }
+                else{
+                    std::cout << "true branching failed" << std::endl;
+                }
+                if(f == true){
+                    Q.push(PF);
+                }
+                else{
+                    std::cout << "false branching failed" << std::endl;
+                }
             }
             else{
-                Q.push(PF);
-                Q.push(PT);
+                if(f == true){
+                    Q.push(PF);
+                }
+                else{
+                    std::cout << "false branching failed" << std::endl;
+                }
+                if(t == true){
+                    Q.push(PT);
+                }
+                else{
+                    std::cout << "true branching failed" << std::endl;
+                }
             }
         }
     }
@@ -133,6 +156,7 @@ var Deduce(HG& H, var u, bel l){
 }
 
 bool Restriction(HG P){
+    return false;
     std::queue<HG> problems;
     problems.push(P);
     while(problems.front().Restriction() == false){

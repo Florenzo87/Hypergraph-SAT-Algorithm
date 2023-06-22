@@ -349,12 +349,13 @@ var HG::shrink(std::vector<int> h){
      return var(0);
 }
 
-void HG::Branching_True(int p){
+bool HG::Branching_True(int p){
+     belegung[p] = wahr;
      int var_index = p;
      for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph.erase(hgraph.begin()+i);
+                    hgraph.erase(hgraph.begin()+i);         //erfüllte clauseln entfernen 
                     break;
                }
           }
@@ -363,16 +364,14 @@ void HG::Branching_True(int p){
      for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph[i].remove_neg(var_index);
+                    hgraph[i].remove_neg(var_index);        //gelöschte variable aus unerfüllte Klauseln entfernen
                     break;
                }
           }
      }
      for(int i=0; i<hgraph.size(); i++){
           if(hgraph[i].size() == 0){
-               hgraph.erase(hgraph.begin()+i);
-               harcs -= 1;
-               i -= 1;
+               return false;                           // Die Idee bei die return false ist, das falls dieser Fall vorkommt dann ist ein solcher Branching illegal, da keine Variablen bleiben die die Klausel erfüllen könnten
           }
           else{
                if(hgraph[i].give_harc2()[0].size() == 0){
@@ -386,14 +385,11 @@ void HG::Branching_True(int p){
                     hgraph[i].set_Head(F);
                }
                if(hgraph[i].give_harc2()[0].size() == 1 && hgraph[i].give_harc2()[1].size() == 1 && hgraph[i].give_harc2()[0][0] == var_num && hgraph[i].give_harc2()[1][0] == var_num-1){
-                    std::cout << i << std::endl;
-                    hgraph.erase(hgraph.begin()+i);
-                    harcs -= 1;
-                    i -= 1;
+                    return false;
                }
           }
      }
-     for(int i=0; i<FS.size(); i++){
+     for(int i=0; i<FS.size(); i++){              //hier werden die FS und BS updated da sie sonst nicht übereinstimmen
           std::vector<harc> empty;
           FS[i] = empty;
      }
@@ -413,9 +409,11 @@ void HG::Branching_True(int p){
           v.set_FS(FS[v.get_var()]);
           v.set_BS(BS[v.get_var()]);
      }
+     return true;
 }
 
-void HG::Branching_False(int p){
+bool HG::Branching_False(int p){
+     belegung[p] = falsch;
      int var_index = p;
      for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
@@ -436,9 +434,7 @@ void HG::Branching_False(int p){
      }
      for(int i=0; i<hgraph.size(); i++){
           if(hgraph[i].size() == 0){
-               hgraph.erase(hgraph.begin()+i);
-               harcs -= 1;
-               i -= 1;
+               return false;
           }
           else{
                if(hgraph[i].give_harc2()[0].size() == 0){
@@ -452,9 +448,7 @@ void HG::Branching_False(int p){
                     hgraph[i].set_Head(F);
                }
                if(hgraph[i].give_harc2()[0].size() == 1 && hgraph[i].give_harc2()[1].size() == 1 && hgraph[i].give_harc2()[0][0] == var_num && hgraph[i].give_harc2()[1][0] == var_num-1){
-                    hgraph.erase(hgraph.begin()+i);
-                    harcs -= 1;
-                    i -= 1;
+                    return false;
                }
           }
      }
@@ -479,6 +473,7 @@ void HG::Branching_False(int p){
           v.set_FS(FS[v.get_var()]);
           v.set_BS(BS[v.get_var()]);
      }
+     return true;
 }
 
 
@@ -505,13 +500,10 @@ var HG::branch_var(int k){
 bool HG::SimplifyUR(){
      for(harc & h : hgraph){
           if (h.size() == 2){
-               std::cout << h.get_pos() << std::endl;
                if(h.give_harc2()[0][0] == var_num){
-                    std::cout << h.give_harc2()[1][0] << std::endl;
                     Branching_True(h.give_harc2()[1][0]);
                }
                else if(h.give_harc2()[1][0] == var_num-1){
-                    std::cout << h.give_harc2()[0][0] << std::endl;
                     Branching_False(h.give_harc2()[0][0]);
                }
           }

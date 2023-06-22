@@ -29,8 +29,8 @@ class HG{
         var shrink(std::vector <int> h); 
         void set_values();
         HG binary();
-        void Branching_True(int p);
-        void Branching_False(int p);
+        bool Branching_True(int p);
+        bool Branching_False(int p);
         HG Branching_True2(var p);
         HG Branching_False2(var p);
         int minimal_harc();
