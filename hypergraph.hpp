@@ -55,6 +55,6 @@ class HG{
         var F;
         var T;
         //std::vector<int> index_harc;                                         gibt an wo sich die variablen des ursprünglichen Problem befinden
-        //std::vector<std::vector<harc>> FS;
-        //std::vector<std::vector<harc>> BS;
+        std::vector<std::vector<harc>> FS;
+        std::vector<std::vector<harc>> BS;
 };

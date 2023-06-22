@@ -117,13 +117,7 @@ void harc::set_pos(int i){
 void harc::remove_nor(int p){
     for(int i=0; i<Head.size(); i++){
         if(Head[i] == p){
-            std::cout << pos << " " << i <<std::endl;
-            if(i == 0){
-                Head.erase(Head.begin());
-            }
-            else{
             Head.erase(Head.begin()+i);
-            }
         }
     }
 }

@@ -29,11 +29,14 @@ HG::HG(const std::string filename){
           F = var(var_num+1); //sie werden zu zwei weniger da wir var_num vergrößern
           T = var(var_num+2);
           var_num += 2;
-          std::vector<std::vector<harc>> FS(var_num+1);
-          std::vector<std::vector<harc>> BS(var_num+1);
+          for (int i=0; i < var_num+1; i++){
+               std::vector<harc> empty;
+               FS.push_back(empty);
+               BS.push_back(empty);
+               belegung.push_back(null);
+          }
           for (int i=1; i < var_num+1; i++){
                vars.push_back(var(i));
-               belegung.push_back(null);
                std::vector<harc> empty;
                harcs_der_variable.push_back(empty);
                Predecessor.push_back(var(i));
@@ -157,8 +160,7 @@ HG::HG(std::vector<std::vector<int>> vec){
                     for (int v : BSv){
                          BS[v].push_back(cls);
                     }
-                    hgraph.push_back(cls);
-                    clausel += 1;     
+                    hgraph.push_back(cls);   
           }                 
           for(var& v : vars){
                v.set_FS(FS[v.get_var()]);
@@ -185,14 +187,14 @@ void HG::printFSBS(){
      for(var & v : vars){
           std::cout << v.get_var() << std::endl;
           std::cout << "FS: ";
-          std::cout << v.get_FS().size() << " ";
-          for(harc h : v.get_FS()){
+          std::cout << FS[v.get_var()].size() << " ";
+          for(harc h : FS[v.get_var()]){
                std::cout << h.get_pos() << " ";
           }
           std::cout << std::endl;
           std::cout << "BS: ";
-          std::cout << v.get_BS().size() << " ";
-          for(harc h : v.get_BS()){
+          std::cout << FS[v.get_var()].size() << " ";
+          for(harc h : FS[v.get_var()]){
                std::cout << h.get_pos() << " ";
           }
           std::cout << std::endl;
@@ -347,39 +349,59 @@ var HG::shrink(std::vector<int> h){
 }
 
 void HG::Branching_True(var p){
-     for(int i=0; i<vars.size(); i++){
-          if(vars[i].get_var() == p.get_var()){
-               vars.erase(vars.begin()+i);
-          }
-     }
-     for(harc & h : p.get_BS()){
-          std::cout << h.get_pos() << std::endl;
+     int var_index = p.get_var();
+     for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    std::cout << i << std::endl;
                     hgraph.erase(hgraph.begin()+i);
                     break;
                }
           }
           harcs -=1;
      }
-     for(harc & h : p.get_FS()){
+     for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph[i].remove_nor(p.get_var());
+                    hgraph[i].remove_neg(var_index);
                     break;
                }
           }
+     }
+
+
+     for(int i=0; i<FS.size(); i++){
+          std::vector<harc> empty;
+          FS[i] = empty;
+     }
+     for(int i=0; i<BS.size(); i++){
+          std::vector<harc> empty;
+          BS[i] = empty;
+     }
+     for(int clausel = 0; clausel < harcs; clausel++){
+          std::vector<int> FSv = {};
+          std::vector<int> BSv = {};
+          for(int n : hgraph[clausel].give_harc2()[0]) { 
+               FSv.push_back(n);
+          }
+          for(int n : hgraph[clausel].give_harc2()[1]) { 
+               BSv.push_back(n);
+          }
+          for (int v : FSv){
+               FS[v].push_back(hgraph[clausel]);
+          }
+          for (int v : BSv){
+               BS[v].push_back(hgraph[clausel]);
+          }    
+     }
+     for(var& v : vars){
+          v.set_FS(FS[v.get_var()]);
+          v.set_BS(BS[v.get_var()]);
      }
 }
 
 void HG::Branching_False(var p){
-     for(int i=0; i<vars.size(); i++){
-          if(vars[i].get_var() == p.get_var()){
-               vars.erase(vars.begin()+i);
-          }
-     }
-     for(harc & h : p.get_FS()){
+     int var_index = p.get_var();
+     for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
                     hgraph.erase(hgraph.begin()+i);
@@ -388,13 +410,42 @@ void HG::Branching_False(var p){
           }
           harcs -=1;
      }
-     for(harc & h : p.get_BS()){
+     for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph[i].remove_nor(p.get_var());;
+                    hgraph[i].remove_nor(var_index);
                     break;
                }
           }
+     }
+     
+     for(int i=0; i<FS.size(); i++){
+          std::vector<harc> empty;
+          FS[i] = empty;
+     }
+     for(int i=0; i<BS.size(); i++){
+          std::vector<harc> empty;
+          BS[i] = empty;
+     }
+     for(int clausel = 0; clausel < harcs; clausel++){
+          std::vector<int> FSv = {};
+          std::vector<int> BSv = {};
+          for(int n : hgraph[clausel].give_harc2()[0]) { 
+               FSv.push_back(n);
+          }
+          for(int n : hgraph[clausel].give_harc2()[1]) { 
+               BSv.push_back(n);
+          }
+          for (int v : FSv){
+               FS[v].push_back(hgraph[clausel]);
+          }
+          for (int v : BSv){
+               BS[v].push_back(hgraph[clausel]);
+          }    
+     }
+     for(var& v : vars){
+          v.set_FS(FS[v.get_var()]);
+          v.set_BS(BS[v.get_var()]);
      }
 }
 
@@ -484,13 +535,13 @@ var HG::branch_var(int k){
 }
 
 bool HG::SimplifyUR(){
-     for(harc h : hgraph){
+     for(harc & h : hgraph){
           if (h.size() == 1){
                if(h.give_harc2()[0].size() == 1){
-                    Branching_True(h.give_harc2()[0][0]);
+                    Branching_False(h.give_harc2()[0][0]);
                }
                else if(h.give_harc2()[1].size() == 1){
-                    Branching_False(h.give_harc2()[1][0]);
+                    Branching_True(h.give_harc2()[1][0]);
                }
           }
      }
