@@ -44,6 +44,20 @@ bool harc::verify(const std::vector<bel>& belegung) const{
     return false;
 }
 
+bool harc::verify_strict(const std::vector<bel>& belegung){
+    for (int pos : Head){
+            if (belegung[pos] == wahr){
+                return true;
+            }
+    }
+    for (int pos : Tail){
+            if (belegung[pos] == falsch){
+                return true;
+            }
+    }
+    return false;
+}
+
 
 bool harc:: empty(){
     if(Head.size()+Tail.size() == 0){
@@ -52,43 +66,43 @@ bool harc:: empty(){
     return false;
 }
 
-std::vector<std::vector<int>> harc::give_harc2() const{
+std::vector<std::vector<int>> harc::give_harc2() const{   // gives harc as the tail and head sepparately
     std::vector<std::vector<int>> vec;
     vec.push_back(Tail);
     vec.push_back(Head);
     return vec;
 }
 
-std::vector<int> harc::give_harc1() const{
+std::vector<int> harc::give_harc1() const{              //gives Tail and Head of harc together, in other words all variables in the harc
     std::vector<int> vec;
-    for(int i=0; i>Tail.size(); i++){
+    for(int i=0; i<Tail.size(); i++){
         vec.push_back(Tail[i]);
     }
-    for(int i=0; i>Head.size(); i++){
+    for(int i=0; i<Head.size(); i++){
         vec.push_back(Head[i]);
     }
     return vec;
 }
 
-std::vector<int> harc::give_harc1neg() const{
+std::vector<int> harc::give_harc1neg() const{          //same as previous but with a minus for the tail, was necessary for a now removed function
     std::vector<int> vec;
-    for(int i=0; i>Tail.size(); i++){
+    for(int i=0; i<Tail.size(); i++){
         vec.push_back(-Tail[i]);
     }
-    for(int i=0; i>Head.size(); i++){
+    for(int i=0; i<Head.size(); i++){
         vec.push_back(Head[i]);
     }
     return vec;
 }
 
 void harc::push_Head(std::vector<int> vec){
-    for(int i=0; i>vec.size(); i++){
+    for(int i=0; i<vec.size(); i++){
         Head.push_back(vec[i]);
     }
 }
 
 void harc::push_Tail(std::vector<int> vec){
-    for(int i=0; i>vec.size(); i++){
+    for(int i=0; i<vec.size(); i++){
         Tail.push_back(vec[i]);
     }
 }
@@ -126,6 +140,7 @@ void harc::remove_nor(int p){
     for(int i=0; i<Head.size(); i++){
         if(Head[i] == p){
             Head.erase(Head.begin()+i);
+            i -= 1;
         }
     }
 }
@@ -134,6 +149,15 @@ void harc::remove_neg(int p){
     for(int i=0; i<Tail.size(); i++){
         if(Tail[i] == p){
             Tail.erase(Tail.begin()+i);
+            i -= 1;
         }
     }
+}
+
+bool harc::active(){
+    return activated;
+}
+
+void harc::deactivate(){
+    activated = false;
 }

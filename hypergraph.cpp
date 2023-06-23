@@ -85,10 +85,6 @@ HG::HG(const std::string filename){
                     clausel += 1;                      
           }
           myfile.close();
-          for(var& v : vars){
-               v.set_FS(FS[v.get_var()]);
-               v.set_BS(BS[v.get_var()]);
-          }
      }
 
      else std::cout << "Unable to open file"; 
@@ -161,10 +157,6 @@ HG::HG(std::vector<std::vector<int>> vec){
                          BS[v].push_back(cls);
                     }
                     hgraph.push_back(cls);   
-          }                 
-          for(var& v : vars){
-               v.set_FS(FS[v.get_var()]);
-               v.set_BS(BS[v.get_var()]);
           }
 }
           
@@ -205,6 +197,15 @@ void HG::printFSBS(){
 bool HG::verify() const{                               
      for (int i=0; i < harcs; i++){
           if(hgraph[i].verify(belegung) == false){
+               return false;
+          }
+     }
+     return true;
+}
+
+bool HG::verify_strict(){                               
+     for (int i=0; i < harcs; i++){
+          if(hgraph[i].verify_strict(belegung) == false){
                return false;
           }
      }
@@ -277,7 +278,7 @@ var HG::root(std::vector<int> h){
           if(a.get_value() == limit){
                return a;
           }
-          std::vector<harc> vec1 = a.get_BS();
+          std::vector<harc> vec1 = BS[a.get_var()];
           for(harc b : vec1){
                std::vector<int> vec2 = b.give_harc2()[0];
                for(var c : vec2){
@@ -329,7 +330,7 @@ var HG::shrink(std::vector<int> h){
           if(a.get_value() == limit){
                return a;
           }
-          std::vector<harc> vec1 = a.get_FS();
+          std::vector<harc> vec1 = FS[a.get_var()];
           for(harc b : vec1){
                std::vector<int> vec2 = b.give_harc2()[1];
                for(int c : vec2){
@@ -351,6 +352,9 @@ var HG::shrink(std::vector<int> h){
 
 bool HG::Branching_True(int p){
      belegung[p] = wahr;
+     if(verify() == false){
+          return false;
+     }
      int var_index = p;
      for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
@@ -405,15 +409,14 @@ bool HG::Branching_True(int p){
                BS[n].push_back(h);
           }  
      }
-     for(var& v : vars){
-          v.set_FS(FS[v.get_var()]);
-          v.set_BS(BS[v.get_var()]);
-     }
      return true;
 }
 
 bool HG::Branching_False(int p){
      belegung[p] = falsch;
+     if(verify() == false){
+          return false;
+     }
      int var_index = p;
      for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
@@ -469,10 +472,6 @@ bool HG::Branching_False(int p){
                BS[n].push_back(h);
           }  
      }
-     for(var& v : vars){
-          v.set_FS(FS[v.get_var()]);
-          v.set_BS(BS[v.get_var()]);
-     }
      return true;
 }
 
@@ -485,31 +484,25 @@ int HG::minimal_harc(){
      return size;
 }
 
-var HG::branch_var(int k){
-     int max = 0;
-     var p(0);
-     for(var u : vars){
-          if(u.W(k) > max){
-               max = u.W(k);
-               p = u;
-          }
-     }
-     return p;
-}
 
 bool HG::SimplifyUR(){
-     for(harc & h : hgraph){
-          if (h.size() == 2){
-               if(h.give_harc2()[0][0] == var_num){
-                    Branching_True(h.give_harc2()[1][0]);
+     for(int i=0; i<hgraph.size(); i++){
+          if (hgraph[i].size() == 2){
+               if(hgraph[i].give_harc2()[0][0] == var_num){
+                    bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
+                    if(branch == false){
+                         return false;
+                    }
+                    i-=1;
                }
-               else if(h.give_harc2()[1][0] == var_num-1){
-                    Branching_False(h.give_harc2()[0][0]);
+               else if(hgraph[i].give_harc2()[1][0] == var_num-1){
+                    bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
+                    if(branch == false){
+                         return false;
+                    }
+                    i-=1;
                }
           }
-     }
-     if(hgraph.size() == 0){
-          return false;
      }
      return true;
 }
@@ -554,7 +547,7 @@ std::vector<bool> HG::Bbranching(int i){
           besuchtharc.push_back(false);
      }
      while(q.empty() == false){
-          for(harc a : vars[q.front()-1].get_FS()){
+          for(harc a : FS[q.front()]){
                if(besuchtharc[a.get_pos()] == false){
                     besuchtharc[a.get_pos()] == true;
                     bool tailbesucht = true;
@@ -591,7 +584,7 @@ std::vector<int> HG::branchingFT(){
           besuchtharc.push_back(false);
      }
      while(q.empty() == false){
-          for(harc a : vars[q.front()-1].get_FS()){
+          for(harc a : FS[q.front()]){
                if(besuchtharc[a.get_pos()] == false){
                     besuchtharc[a.get_pos()] == true;
                     bool tailbesucht = true;
@@ -643,4 +636,13 @@ int HG::branching_var(int k){
           }
      }
      return p;
+}
+
+std::vector<std::vector<harc>> HG::get_FS(){
+     return FS;
+}
+        
+        
+std::vector<std::vector<harc>> HG::get_BS(){
+     return BS;
 }

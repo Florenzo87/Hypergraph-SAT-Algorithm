@@ -10,6 +10,7 @@ class HG{
         bool verify() const;                                                //uberprüft ob die Belegung richtig ist
         bool verify(const int zuletz_geaenderte_variable) const;            //uberprüft ob die Belegung richtig ist aber nur an der Klauseln in der sich die geänderte Variable befindet
         bool verify(const int erste_geaenderte_variable, const int letzte_geaenderte_variable) const;   //uberprüft ob die Belegung richtig ist aber nur an der Klauseln in der sich die geänderte Variablen befindet
+        bool verify_strict();
         int backtrack_until() const;                                        //findet die kleinste Variable die die grösste in ihrer (falsche) Klausel ist
         void print() const;                                                 //druckt den HG auf die Konsole, jede Klausel auf einer Zeile
         void printFSBS();
@@ -31,8 +32,8 @@ class HG{
         HG binary();
         bool Branching_True(int p);
         bool Branching_False(int p);
-        HG Branching_True2(var p);
-        HG Branching_False2(var p);
+        bool Branching_True2(int p);
+        bool Branching_False2(int p);
         int minimal_harc();
         var branch_var(int k);
         bool SimplifyUR();
@@ -45,6 +46,8 @@ class HG{
         std::vector<int> branchingFT();
         bool Restriction();
         int branching_var(int k);
+        std::vector<std::vector<harc>> get_FS();
+        std::vector<std::vector<harc>> get_BS();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause
         std::vector<bel> belegung;                                         //als vector von int 0,1,2 mit 2 als noch nicht belegt/gleichzeitig wahr und falsch, die erste Stelle entspricht keiner Variable und wird evtl. für der depth der besetzte Variablen benutzt

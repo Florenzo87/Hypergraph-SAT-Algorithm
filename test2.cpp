@@ -41,59 +41,63 @@ bool DPL(HG H){
             Q.pop();
         }
         //P.print();
-        P.SimplifyUR();
-        //P.print();
-        //P.printFSBS();
-        if(P.empty()){
-            std::cout << "Solved through Unit Resolution" << std::endl;
-            //print(P.get_belegung());
-            //H.set_belegung(P.get_belegung());
-            //std::cout << H.verify() << std::endl;
-            return true;
-        }
-        if(Relaxation(P) == true){
-            std::cout << "Relaxation is true" << std::endl;
-            if(P.Restriction() == true){
-                std::cout << "Restriction is true" << std::endl;
+        if(P.SimplifyUR() == true){
+            //P.print();
+            //P.printFSBS();
+            if(P.empty()){
+                std::cout << "Solved through Unit Resolution" << std::endl;
+                print(P.get_belegung());
+                H.set_belegung(P.get_belegung());
+                std::cout << H.verify_strict() << std::endl;
                 return true;
             }
-            std::cout << "Restriction is false" << std::endl;
-            int k = P.minimal_harc();
-            std::cout << "k=" << k << std::endl;
-            int p = P.branching_var(k);
-            std::cout << "p=" << p << std::endl;
-            HG PT = P;
-            HG PF = P;
-            bool t = PT.Branching_True(p);
-            bool f = PF.Branching_False(p);
-            if(k>2){
-                if(t == true){
-                    Q.push(PT);
+            if(Relaxation(P) == true){
+                std::cout << "Relaxation is true" << std::endl;
+                if(P.Restriction() == true){
+                    std::cout << "Restriction is true" << std::endl;
+                    return true;
+                }
+                std::cout << "Restriction is false" << std::endl;
+                int k = P.minimal_harc();
+                std::cout << "k=" << k << std::endl;
+                int p = P.branching_var(k);
+                std::cout << "p=" << p << std::endl;
+                HG PT = P;
+                HG PF = P;
+                bool t = PT.Branching_True(p);
+                bool f = PF.Branching_False(p);
+                if(k>2){
+                    if(t == true){
+                        Q.push(PT);
+                    }
+                    else{
+                        std::cout << "true branching failed" << std::endl;
+                    }
+                    if(f == true){
+                        Q.push(PF);
+                    }
+                    else{
+                        std::cout << "false branching failed" << std::endl;
+                    }
                 }
                 else{
-                    std::cout << "true branching failed" << std::endl;
-                }
-                if(f == true){
-                    Q.push(PF);
-                }
-                else{
-                    std::cout << "false branching failed" << std::endl;
+                    if(f == true){
+                        Q.push(PF);
+                    }
+                    else{
+                        std::cout << "false branching failed" << std::endl;
+                    }
+                    if(t == true){
+                        Q.push(PT);
+                    }
+                    else{
+                        std::cout << "true branching failed" << std::endl;
+                    }
                 }
             }
-            else{
-                if(f == true){
-                    Q.push(PF);
-                }
-                else{
-                    std::cout << "false branching failed" << std::endl;
-                }
-                if(t == true){
-                    Q.push(PT);
-                }
-                else{
-                    std::cout << "true branching failed" << std::endl;
-                }
-            }
+        }
+        else{
+            std::cout << "Unit Resolution failed" << std::endl;
         }
     }
     return false;
@@ -114,10 +118,10 @@ var Deduce(HG& H, var u, bel l){
     }
     L[u.get_var()] = l;
     if(l == true){
-        AD[u.get_var()] = u.get_FS();
+        AD[u.get_var()] = H.get_FS()[u.get_var()];
     }
     else{
-        AD[u.get_var()] = u.get_BS();
+        AD[u.get_var()] = H.get_BS()[u.get_var()];
     }
     for(harc a : AD[u.get_var()]){
         if (a.give_harc1().size()>2){
