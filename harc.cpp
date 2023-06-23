@@ -161,3 +161,15 @@ bool harc::active(){
 void harc::deactivate(){
     activated = false;
 }
+
+void harc::set_unused(){
+    unused = true;
+}
+
+void harc::set_used(){
+    unused = false;
+}
+
+bool harc::get_unused(){
+    return unused;
+}

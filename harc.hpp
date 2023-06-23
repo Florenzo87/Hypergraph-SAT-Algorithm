@@ -28,10 +28,14 @@ class harc{
         void remove_neg(int p);
         bool active();
         void deactivate();
+        void set_unused();
+        void set_used();
+        bool get_unused();
     private:
         std::vector<int> Head;                                               //Klausel ist ein Vektor aus ints
         std::vector<int> Tail;
         int Value;
         int pos;
         bool activated;
+        bool unused;
 };

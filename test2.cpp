@@ -21,6 +21,7 @@ void print(const std::vector<bel>& vec);
 
 int main(int argc, char** argv){
     HG H(argv[1]);
+    print(H.get_belegung());
     //H.printFSBS();
     bool loesbar = DPL(H);
     std::cout << loesbar << std::endl;
@@ -45,6 +46,7 @@ bool DPL(HG H){
             //P.print();
             //P.printFSBS();
             if(P.empty()){
+                //P.print();
                 std::cout << "Solved through Unit Resolution" << std::endl;
                 print(P.get_belegung());
                 H.set_belegung(P.get_belegung());
@@ -53,7 +55,7 @@ bool DPL(HG H){
             }
             if(Relaxation(P) == true){
                 std::cout << "Relaxation is true" << std::endl;
-                if(P.Restriction() == true){
+                if(Restriction(P) == true){
                     std::cout << "Restriction is true" << std::endl;
                     return true;
                 }
@@ -165,18 +167,20 @@ bool Restriction(HG P){
     problems.push(P);
     while(problems.front().Restriction() == false){
         std::vector<int> h = P.branchingFT();
-        for(int i=0; i<h.size(); i++){
+        for(int j=0; j<h.size(); j++){
             HG Pi = P;
-            for(int j=0; j<i; j++){
-                Pi.Branching_False(h[j]);
+            for(int i=0; i<j; i++){
+                Pi.Branching_False(h[i]);
             }
-            Pi.Branching_True(h[i]);
+            Pi.Branching_True(h[j]);
             problems.push(Pi);
         }
-        problems.pop();
     }
-    if(problems.front().Restriction() == true){
-        return true;
+    while(problems.empty() == false){
+        if(DPL(problems.front()) == true){
+            return true;
+        }
+        problems.pop();
     }
     return false;
 }

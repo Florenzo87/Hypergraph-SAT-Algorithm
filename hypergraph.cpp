@@ -35,6 +35,8 @@ HG::HG(const std::string filename){
                BS.push_back(empty);
                belegung.push_back(null);
           }
+          belegung[var_num] = wahr;
+          belegung[var_num-1] = falsch;
           for (int i=1; i < var_num+1; i++){
                vars.push_back(var(i));
                std::vector<harc> empty;
@@ -195,7 +197,7 @@ void HG::printFSBS(){
 }
 
 bool HG::verify() const{                               
-     for (int i=0; i < harcs; i++){
+     for (int i=0; i < hgraph.size(); i++){
           if(hgraph[i].verify(belegung) == false){
                return false;
           }
@@ -204,8 +206,9 @@ bool HG::verify() const{
 }
 
 bool HG::verify_strict(){                               
-     for (int i=0; i < harcs; i++){
+     for (int i=0; i < hgraph.size(); i++){
           if(hgraph[i].verify_strict(belegung) == false){
+               std::cout << hgraph[i].get_pos() << std::endl;
                return false;
           }
      }
@@ -242,12 +245,10 @@ int HG::num_harcs() const{
 }
 
 bool HG::empty(){
-    for (int i=0; i < harcs; i++){
-          if(hgraph[i].empty() == false){
-               return false;
-          }
-     }
-    return true;
+    if(hgraph.size() == 0){
+          return true;
+    }
+    return false;
 }
 
 harc& HG::give_harc(int i) {
@@ -489,18 +490,20 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
+                    std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
                          return false;
                     }
-                    i-=1;
+                    i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
+                    std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
                          return false;
                     }
-                    i-=1;
+                    i=0;
                }
           }
      }
@@ -572,6 +575,9 @@ std::vector<bool> HG::Bbranching(int i){
 }
 
 std::vector<int> HG::branchingFT(){
+     for(harc & h : hgraph){
+          h.set_unused();
+     }
      int i = var_num-1;
      std::queue<int> q;
      q.push(i);
