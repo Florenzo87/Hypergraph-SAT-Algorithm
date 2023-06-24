@@ -106,66 +106,78 @@ bool DPL(HG H){
 }
 
 var Deduce(HG& H, var u, bel l){
-    std::vector<bel> L = H.get_belegung();
-    std::vector<std::vector<harc>> AD;
-    std::queue<harc> Last;
-    H.set_values();
-    for(int i = 0; i < H.variables(); i++){
-        L.push_back(null);
-        std::vector<harc> empty;
-        AD.push_back(empty);
+    std::vector<bool> visited;
+    //std::queue<harc> Last;
+    for(int i = 0; i < H.variables()+1; i++){
+        visited.push_back(false);
     }
-    for(int i=0; i>H.num_harcs(); i++){
-        Last.push(H.give_harc(i));
-    }
-    L[u.get_var()] = l;
-    if(l == true){
-        AD[u.get_var()] = H.get_FS()[u.get_var()];
+    //for(int i=0; i < H.num_harcs(); i++){
+    //    Last.push(H.give_harc(i));
+    //}
+    H.set_L(u.get_var(), l);
+    if(l == wahr){
+        H.set_AD(u.get_var(), H.get_FS()[u.get_var()]);
     }
     else{
-        AD[u.get_var()] = H.get_BS()[u.get_var()];
+        H.set_AD(u.get_var(), H.get_BS()[u.get_var()]);
     }
-    for(harc a : AD[u.get_var()]){
-        if (a.give_harc1().size()>2){
-            a.set_value(a.get_value()-1);
-            if(a.get_value() == 1 && Last.front().empty() == false){
-                var w = H.root(a.give_harc1());
-                AD[w.get_var()].push_back(shrink(H , a, w));
-            }
-            else if(a.get_value() == 1){
-                return H.root(a.give_harc1());
+    for(harc h : H.get_AD(u.get_var())){
+        int a;
+        for(int i=0; i<H.get_hgraph().size(); i++){
+            if(h.get_pos() == H.get_hgraph()[i].get_pos()){
+                a = i;
             }
         }
-        Last.pop();
+        if (H.get_hgraph()[a].give_harc1().size()>2){
+            H.get_hgraph()[a].set_V(H.get_hgraph()[a].get_V()-1);
+            if(H.get_hgraph()[a].get_V() == 1 && H.get_hgraph()[a].Last(H.get_visited()) != 0){
+                var last = H.get_vars()[H.get_hgraph()[a].Last(H.get_visited())];
+                var w = H.root(H.get_hgraph()[a].give_harc1());
+                std::vector<harc> ADw = H.get_AD(w.get_var());
+                std::vector<int> Tail = {last.get_var()};
+                std::vector<int> Head = {w.get_var()};
+                harc shrink(Tail, Head, H.get_hgraph().size());
+                ADw.push_back(shrink);
+                H.get_hgraph().push_back(shrink);           //möglicherweise FS und BS aktualisieren?
+                H.get_FS()[last.get_var()].push_back(shrink);
+                H.get_BS()[w.get_var()].push_back(shrink);
+                H.set_AD(w.get_var(), ADw);
+                H.increase_harcs();
+            }
+            else if(H.get_hgraph()[a].get_V() == 0){
+                return H.root(H.get_hgraph()[a].give_harc1());
+            }
+        }
     }
-    for(harc a : AD[u.get_var()]){
-        if (a.give_harc1().size() == 2){
-            var b = shrink(H, a, H.root(a.give_harc1())).give_harc2()[0][0];
-            var v(0);
-            if(a.give_harc2()[0][0] != b.get_var()){
-                var v = a.give_harc2()[0][0];
+    for(harc h : H.get_AD(u.get_var())){
+        int a;
+        for(int i=0; i<H.get_hgraph().size(); i++){
+            if(h.get_pos() == H.get_hgraph()[i].get_pos()){
+                a = i;
+            }
+        }
+        if (H.get_hgraph()[a].give_harc1().size() == 2){
+            var v;
+            if(H.get_hgraph()[a].give_harc1()[0] == u.get_var()){
+                v = H.get_hgraph()[a].give_harc1()[0];
             }
             else{
-                var v = a.give_harc2()[1][0];
+                v = H.get_hgraph()[a].give_harc1()[1];
             }
-            if(L[a.give_harc2()[0][0]] == null){
-                    H.set_P(v, u);
-                    Deduce(H, v, tvalue(v,a));
-                }
-            else if(L[a.give_harc2()[0][0]] != tvalue(v,a)){
+            if(H.get_L()[v.get_var()] == null){
+                H.set_P(v.get_var(), u.get_var());
+            }
+            else if(H.get_L()[v.get_var()] != tvalue(v, h)){
                 return v;
             }
         }
     }
-    var empty(0);
-    return empty;
+    return var(0);
 }
 
 bool Restriction(HG P){
-    return false;
     std::queue<HG> problems;
-    problems.push(P);
-    while(problems.front().Restriction() == false){
+    if(P.Restriction() == false){
         std::vector<int> h = P.branchingFT();
         for(int j=0; j<h.size(); j++){
             HG Pi = P;
@@ -176,8 +188,11 @@ bool Restriction(HG P){
             problems.push(Pi);
         }
     }
+    else{
+        return true;
+    }
     while(problems.empty() == false){
-        if(DPL(problems.front()) == true){
+        if(problems.front().Restriction() == true){
             return true;
         }
         problems.pop();
@@ -187,24 +202,26 @@ bool Restriction(HG P){
 
 bool Relaxation(HG H){
     return true;
-    std::vector<bel> L;
+    /*
+    std::vector<bel> L = H.get_belegung();
     std::vector<std::vector<bel>> B;
     std::vector<bel> bi = {wahr, falsch};
     std::vector<var> S;
+    H.set_V();
     for(int i=0; i<H.variables(); i++){
             B.push_back(bi);
-            S.push_back(H.get_vars()[i]);
+            if(H.get_belegung()[i] == null && i > 0){
+                S.push_back(H.get_vars()[i]);
+            }
         }
-    while(true){
-        if(S.size() == 0){
-            break;
-        };
+    while(S.size() != 0){
         var u = S[0];
         S.erase(S.begin());
         bool skip = false;
         std::vector<bel> Deduceu;
-        for(bel l : B[u.get_var()-1]){
+        for(bel l : B[u.get_var()]){
             std::vector<bel> altbelegung = H.get_belegung();
+            H.set_L(L);
             var v = Deduce(H, u, l);
             Deduceu.push_back(H.get_belegung()[u.get_var()]);
             if (v.get_var() != 0){
@@ -249,15 +266,15 @@ bool Relaxation(HG H){
         }
     }
     return true;
-
+    //*/
 }
 
-harc shrink(HG H, harc a, var w){
+harc shrink(HG H, int a, var w, int pos){
     H = H.binary();
-    var u = H.shrink(a.give_harc1());
+    var u = H.shrink(H.get_hgraph()[a].give_harc1());
     std::vector<int> Head = {u.get_var()};
     std::vector<int> Tail = {w.get_var()};
-    harc as(Head, Tail, H.num_harcs());
+    harc as(Head, Tail, pos);
     return as;
 }
 

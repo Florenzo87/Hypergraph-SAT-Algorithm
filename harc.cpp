@@ -120,12 +120,12 @@ int harc::size(){
     return size;
 }
 
-void harc::set_value(int i){
-    Value = i;
+void harc::set_V(int i){
+    V = i;
 }
 
-int harc::get_value(){
-    return Value;
+int harc::get_V(){
+    return V;
 }
 
 int harc::get_pos(){
@@ -172,4 +172,18 @@ void harc::set_used(){
 
 bool harc::get_unused(){
     return unused;
+}
+
+int harc::Last(std::vector<bool> visited){
+    for(int i : Head){
+        if(visited[i] == false){
+            return i;
+        }
+    }
+    for(int i : Tail){
+        if(visited[i] == false){
+            return i;
+        }
+    }
+    return 0;
 }

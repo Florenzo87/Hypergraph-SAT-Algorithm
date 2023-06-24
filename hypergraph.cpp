@@ -43,6 +43,7 @@ HG::HG(const std::string filename){
                harcs_der_variable.push_back(empty);
                Predecessor.push_back(var(i));
                //index_harc.push_back(i-1);
+               AD.push_back(empty);
           }
           //vars.push_back(F); eigentlich schon addiert oben
           //vars.push_back(T);
@@ -93,6 +94,7 @@ HG::HG(const std::string filename){
 
 }
 
+/*
 HG::HG(std::vector<std::vector<int>> vec){
           harcs = vec.size();
           std::vector<int> besuche;
@@ -122,6 +124,7 @@ HG::HG(std::vector<std::vector<int>> vec){
                harcs_der_variable.push_back(empty);
                Predecessor.push_back(var(besuche[i]));
                //index_harc.push_back(i-1);
+               AD.push_back(empty);
           }
           //vars.push_back(F); eigentlich schon addiert oben
           //vars.push_back(T);
@@ -161,7 +164,7 @@ HG::HG(std::vector<std::vector<int>> vec){
                     hgraph.push_back(cls);   
           }
 }
-          
+//*/
 
 
 HG::HG(std::vector<harc> vec, int i){
@@ -299,9 +302,9 @@ var HG::root(std::vector<int> h){
      return var(0);
 }
 
-void HG::set_values(){
+void HG::set_V(){
      for (harc a : hgraph){
-          a.set_value(a.give_harc1().size());
+          a.set_V(a.give_harc1().size());
      }
 }
 
@@ -364,7 +367,6 @@ bool HG::Branching_True(int p){
                     break;
                }
           }
-          harcs -=1;
      }
      for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
@@ -426,7 +428,6 @@ bool HG::Branching_False(int p){
                     break;
                }
           }
-          harcs -=1;
      }
      for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
@@ -552,7 +553,6 @@ std::vector<bool> HG::Bbranching(int i){
      while(q.empty() == false){
           for(harc a : FS[q.front()]){
                if(besuchtharc[a.get_pos()] == false){
-                    besuchtharc[a.get_pos()] == true;
                     bool tailbesucht = true;
                     for(var v : a.give_harc2()[0]){
                          if(besucht[v.get_var()] == false){
@@ -560,6 +560,7 @@ std::vector<bool> HG::Bbranching(int i){
                          }
                     }
                     if(tailbesucht == true){
+                         besuchtharc[a.get_pos()] == true;
                          for(int i : a.give_harc2()[1]){
                               if(besucht[i] == false){
                                    besucht[i] = true;
@@ -644,11 +645,47 @@ int HG::branching_var(int k){
      return p;
 }
 
-std::vector<std::vector<harc>> HG::get_FS(){
+std::vector<std::vector<harc>>& HG::get_FS(){
      return FS;
 }
         
         
-std::vector<std::vector<harc>> HG::get_BS(){
+std::vector<std::vector<harc>>& HG::get_BS(){
      return BS;
+}
+
+void HG::set_L(std::vector<bel> vec){
+     L = vec;
+}
+
+void HG::set_L(int u, bel l){
+     L[u] = l;
+}
+
+std::vector<bel> HG::get_L(){
+     return L;
+}
+
+void HG::set_AD(int u, std::vector<harc> vec){
+     AD[u] = vec;
+}
+        
+std::vector<harc> HG::get_AD(int u){
+     return AD[u];
+}
+
+std::vector<harc>& HG::get_hgraph(){
+     return hgraph;
+} 
+
+std::vector<bool> HG::get_visited(){
+     return visited;
+}
+        
+void HG::set_visited(bool l, int u){
+     visited[u] = l;
+}
+
+void HG::increase_harcs(){
+     harcs += 1;
 }

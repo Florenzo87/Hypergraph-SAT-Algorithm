@@ -21,11 +21,3 @@ void var::set_value(int i){
 int var::get_value() const{
     return value;
 }
-
-bool var::active() const{
-    return activated;
-}
-
-void var::deactivate(){
-    activated = false;
-}

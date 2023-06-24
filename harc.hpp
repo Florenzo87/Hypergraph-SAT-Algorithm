@@ -20,8 +20,8 @@ class harc{
         void set_Head(std::vector<int>);
         void set_Tail(std::vector<int>);
         int size();
-        void set_value(int i);
-        int get_value();
+        void set_V(int i);
+        int get_V();
         int get_pos();
         void set_pos(int i);
         void remove_nor(int p);
@@ -31,10 +31,11 @@ class harc{
         void set_unused();
         void set_used();
         bool get_unused();
+        int Last(std::vector<bool> visited);
     private:
         std::vector<int> Head;                                               //Klausel ist ein Vektor aus ints
         std::vector<int> Tail;
-        int Value;
+        int V;
         int pos;
         bool activated;
         bool unused;
