@@ -58,12 +58,29 @@ HG::HG(const std::string filename){
                     while( is >> n ) {
                          if (n != 0){
                                 if (n>0){
-                                    head.push_back(n);
-                                    BSv.push_back(n);
+                                   bool add = true;
+                                   for(int i=0; i<head.size(); i++){
+                                        if(head[i] == n){
+                                             add = false;
+                                        }
+                                   }
+                                   if(add == true){
+                                        head.push_back(n);
+                                        BSv.push_back(n);
+                                   }
+                                   
                                 }
                                 else{
-                                    tail.push_back(-n);
-                                    FSv.push_back(-n);
+                                   bool add = true;
+                                   for(int i=0; i<tail.size(); i++){
+                                        if(tail[i] == n){
+                                             add = false;
+                                        }
+                                   }
+                                   if(add == true){
+                                        tail.push_back(-n);
+                                        FSv.push_back(-n);
+                                   }
                                 }   
                          }
                     }
@@ -351,7 +368,7 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
-                    //std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
+                    std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
                          return false;
@@ -359,7 +376,7 @@ bool HG::SimplifyUR(){
                     i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
-                    //std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
+                    std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
                          return false;
