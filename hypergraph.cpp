@@ -34,16 +34,14 @@ HG::HG(const std::string filename){
                FS.push_back(empty);
                BS.push_back(empty);
                belegung.push_back(null);
+               Predecessor.push_back(i);
+               AD.push_back(empty);
+               L.push_back(null);
           }
           belegung[var_num] = wahr;
           belegung[var_num-1] = falsch;
           for (int i=1; i < var_num+1; i++){
                vars.push_back(var(i));
-               std::vector<harc> empty;
-               harcs_der_variable.push_back(empty);
-               Predecessor.push_back(var(i));
-               //index_harc.push_back(i-1);
-               AD.push_back(empty);
           }
           //vars.push_back(F); eigentlich schon addiert oben
           //vars.push_back(T);
@@ -92,85 +90,6 @@ HG::HG(const std::string filename){
 
      else std::cout << "Unable to open file"; 
 
-}
-
-/*
-HG::HG(std::vector<std::vector<int>> vec){
-          harcs = vec.size();
-          std::vector<int> besuche;
-          for(std::vector<int> h : vec){
-               for(int i : h){
-                    bool besucht = false;
-                    for(int j : besuche){
-                         if(i == j){
-                              besucht = true;
-                         }
-                    }
-                    if(besucht == false){
-                         besuche.push_back(i);
-                    }
-               }
-          }
-          var_num = besuche.size();
-          F = var(var_num+1); //sie werden zu zwei weniger da wir var_num vergrößern
-          T = var(var_num+2);
-          var_num += 2;
-          std::vector<std::vector<harc>> FS(var_num+1);
-          std::vector<std::vector<harc>> BS(var_num+1);
-          for (int i=0; i < var_num+1; i++){
-               vars.push_back(var(besuche[i]));
-               belegung.push_back(null);
-               std::vector<harc> empty;
-               harcs_der_variable.push_back(empty);
-               Predecessor.push_back(var(besuche[i]));
-               //index_harc.push_back(i-1);
-               AD.push_back(empty);
-          }
-          //vars.push_back(F); eigentlich schon addiert oben
-          //vars.push_back(T);
-          for(int clausel = 0; clausel < harcs; clausel++){
-                    std::vector<int> head = {};
-                    std::vector<int> tail = {};
-                    std::vector<int> FSv = {};
-                    std::vector<int> BSv = {};
-                    std::vector<int> harcs_der_variable_v = {};
-                    for(int n : vec[clausel]) {
-                         if (n != 0){
-                                if (n>0){
-                                    head.push_back(n);
-                                    BSv.push_back(n);
-                                }
-                                else{
-                                    tail.push_back(-n);
-                                    FSv.push_back(-n);
-                                }   
-                         }
-                    }
-                    if(head.size() == 0){
-                         head.push_back(var_num-1);
-                         BSv.push_back(var_num-1);
-                    }
-                    if(tail.size() == 0){
-                         tail.push_back(var_num);
-                         FSv.push_back(var_num);
-                    }
-                    harc cls = harc(tail, head, clausel);
-                    for (int v : FSv){
-                         FS[v].push_back(cls);
-                    }
-                    for (int v : BSv){
-                         BS[v].push_back(cls);
-                    }
-                    hgraph.push_back(cls);   
-          }
-}
-//*/
-
-
-HG::HG(std::vector<harc> vec, int i){
-     hgraph = vec;
-     var_num = i;
-     harcs = hgraph.size();
 }
 
 void HG::print() const{
@@ -269,33 +188,25 @@ std::vector<var> HG::give_harc_as_vec(int i) const{
 
 var HG::root(std::vector<int> h){
      int limit = h.size();
-     std::queue<var> q;
-     std::vector<std::vector<int>> checked;
+     std::queue<int> q;
+     std::vector<bool> checked;
+     for(int i=0; i<var_num+1; i++){
+          checked.push_back(false);
+     }
      for(int i : h){
-          var a = vars[i];
-          q.push(a);
-          a.set_value(a.get_value()+1);
+          q.push(i);
+          vars[i].set_value(vars[i].get_value()+1);
+          checked[i] = true;
      }
      while(q.empty() == false){
-          var a = q.front();
-          a.set_value(a.get_value()+1);
-          if(a.get_value() == limit){
-               return a;
+          int a = q.front();
+          if(checked[Predecessor[a]] == false){
+               q.push(Predecessor[a]);
+               checked[Predecessor[a]] = true;
           }
-          std::vector<harc> vec1 = BS[a.get_var()];
-          for(harc b : vec1){
-               std::vector<int> vec2 = b.give_harc2()[0];
-               for(var c : vec2){
-                    bool add = true;
-                    for(int i = 0; i<checked[a.get_var()].size() ; i++){
-                         if(c.get_var() == checked[a.get_var()][i]){
-                              add = false;
-                         }
-                    }
-                    if(add == true){
-                         q.push(c);
-                    }
-               }
+          vars[a].set_value(vars[a].get_value()+1);
+          if(vars[a].get_value() == limit){
+               return vars[a];
           }
           q.pop();
      }
@@ -303,55 +214,9 @@ var HG::root(std::vector<int> h){
 }
 
 void HG::set_V(){
-     for (harc a : hgraph){
+     for (harc & a : hgraph){
           a.set_V(a.give_harc1().size());
      }
-}
-
-HG HG::binary(){
-     std::vector<harc> hgraphneu;
-     for(harc a : hgraph){
-          if(a.give_harc2()[0].size() == 1 && a.give_harc2()[1].size() == 1){
-               hgraphneu.push_back(a);
-          }
-     }
-     HG H(hgraphneu, var_num);
-     return H;
-}
-
-var HG::shrink(std::vector<int> h){
-     int limit = h.size();
-     std::queue<var> q;
-     std::vector<std::vector<int>> checked;
-     for(int i : h){
-          var a = vars[i];
-          q.push(a);
-          a.set_value(a.get_value()+1);
-     }
-     while(true){
-          var a = q.front();
-          a.set_value(a.get_value()+1);
-          if(a.get_value() == limit){
-               return a;
-          }
-          std::vector<harc> vec1 = FS[a.get_var()];
-          for(harc b : vec1){
-               std::vector<int> vec2 = b.give_harc2()[1];
-               for(int c : vec2){
-                    bool add = true;
-                    for(int i = 0; i<checked[a.get_var()].size() ; i++){
-                         if(c == checked[a.get_var()][i]){
-                              add = false;
-                         }
-                    }
-                    if(add == true){
-                         q.push(c);
-                    }
-               }
-          }
-          q.pop();
-     }
-     return var(0);
 }
 
 bool HG::Branching_True(int p){
@@ -491,6 +356,9 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
+                    if(hgraph[i].give_harc2()[1][0] == 0){
+                         return false;
+                    }
                     std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
@@ -499,6 +367,9 @@ bool HG::SimplifyUR(){
                     i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
+                    if(hgraph[i].give_harc2()[0][0] == 0){
+                         return false;
+                    }
                     std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
@@ -512,7 +383,7 @@ bool HG::SimplifyUR(){
 }
 
 void HG::set_P(var v, var u){
-     Predecessor[v.get_var()] = u;
+     Predecessor[v.get_var()] = u.get_var();
 }
 
 var HG::get_P(var v){
@@ -523,8 +394,17 @@ std::vector<var> HG::get_vars(){
      return vars;
 }
 
-void HG::set_valuesT1(){
-     
+void HG::set_valuesT1(var v){
+     int i = v.get_var();
+     while(Predecessor[i] != i){
+          if(L[i] == wahr){
+               L[i] = falsch;
+          }
+          else if(L[i] == falsch){
+               L[i] = wahr;
+          }
+          i = Predecessor[i];
+     }
 }
         
 void HG::set_valuesP1(){
@@ -688,4 +568,38 @@ void HG::set_visited(bool l, int u){
 
 void HG::increase_harcs(){
      harcs += 1;
+}
+
+void HG::set_for_relaxation(){
+     Predecessor = {};
+     AD = {};
+     L = {};
+     visited = {};
+     for(int i=0; i<var_num+1; i++){
+          Predecessor.push_back(i);
+          std::vector<harc> empty;
+          AD.push_back(empty);
+          L.push_back(null);
+          visited.push_back(false);
+     }
+     S = {};
+     std::vector<bool> Sbool;
+     for(int i=0; i<var_num+1; i++){
+          Sbool.push_back(false);
+     }
+     for(int i=0; i<hgraph.size(); i++){
+          for(int v: hgraph[i].give_harc1()){
+               Sbool[v] = true;
+          }
+     }
+     for(int i=0; i<Sbool.size(); i++){
+          if(Sbool[i] == true){
+               S.push_back(i);
+          } 
+     }
+     set_V();
+}
+
+std::vector<int> HG::get_S(){
+     return S;
 }

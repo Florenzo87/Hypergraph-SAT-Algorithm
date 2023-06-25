@@ -15,8 +15,6 @@ class HG{
         void print() const;                                                 //druckt den HG auf die Konsole, jede Klausel auf einer Zeile
         void printFSBS();
         HG(const std::string filename);                                    //baut HG element aus den gegebenen Textdokument
-        HG(std::vector<std::vector<int>>);
-        HG(std::vector<harc> vec, int i);
         void set_belegung(const std::vector<bel>& neubelegung);             //Belegung ändern zu den gegebenen Vektor, Achtung: überprüft nicht ob dieser die richtige Länge hat
         void set_belegung(const int pos, const bel val);                    //Belegung an der gegebene Position zum gegebenen Wert ändern
         void set_belegung(const int pos);                                   //Belegung an der gegebene Position ändern (0 ->1, 1 ->0, 2 ->2)
@@ -26,10 +24,7 @@ class HG{
         bool empty();
         harc& give_harc(int i);  
         std::vector<var> give_harc_as_vec(int i) const; 
-        var root(std::vector <int> h);   
-        var shrink(std::vector <int> h); 
-        void set_V();
-        HG binary();
+        var root(std::vector <int> h);
         bool Branching_True(int p);
         bool Branching_False(int p);
         bool Branching_True2(int p);
@@ -39,7 +34,7 @@ class HG{
         bool SimplifyUR();
         void set_P(var v, var u);
         var get_P(var v);
-        void set_valuesT1();
+        void set_valuesT1(var v);
         void set_valuesP1();
         std::vector<var> get_vars();
         std::vector<bool> Bbranching(int i);
@@ -57,6 +52,9 @@ class HG{
         std::vector<bool> get_visited();
         void set_visited(bool l, int u);
         void increase_harcs();
+        void set_for_relaxation();
+        std::vector<int> get_S();
+        void set_V();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause
         std::vector<bel> belegung;                                         //als vector von int 0,1,2 mit 2 als noch nicht belegt/gleichzeitig wahr und falsch, die erste Stelle entspricht keiner Variable und wird evtl. für der depth der besetzte Variablen benutzt
@@ -64,13 +62,14 @@ class HG{
         int var_num;                                                            //Anzahl an Variablen
         int harcs;                                                        //Anzahl an harcs
         std::vector<std::vector<harc>> harcs_der_variable;                //in welche arcs sich jede Variable befindet
-        std::vector<var> Predecessor;
         var F;
         var T;
         //std::vector<int> index_harc;                                         gibt an wo sich die variablen des ursprünglichen Problem befinden
         std::vector<std::vector<harc>> FS;
         std::vector<std::vector<harc>> BS;
+        std::vector<int> Predecessor;                       //diese sind alle für die Relaxation
         std::vector<bel> L;
         std::vector<std::vector<harc>> AD;
         std::vector<bool> visited;
+        std::vector<int> S;
 };

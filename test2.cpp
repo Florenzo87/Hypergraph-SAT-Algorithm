@@ -21,8 +21,8 @@ void print(const std::vector<bel>& vec);
 
 int main(int argc, char** argv){
     HG H(argv[1]);
-    print(H.get_belegung());
-    //H.printFSBS();
+    //H.print();
+    H.printFSBS();
     bool loesbar = DPL(H);
     std::cout << loesbar << std::endl;
     return 0;
@@ -97,6 +97,9 @@ bool DPL(HG H){
                     }
                 }
             }
+            else{
+                std::cout << "Relaxation failed" << std::endl;
+            }
         }
         else{
             std::cout << "Unit Resolution failed" << std::endl;
@@ -106,14 +109,7 @@ bool DPL(HG H){
 }
 
 var Deduce(HG& H, var u, bel l){
-    std::vector<bool> visited;
-    //std::queue<harc> Last;
-    for(int i = 0; i < H.variables()+1; i++){
-        visited.push_back(false);
-    }
-    //for(int i=0; i < H.num_harcs(); i++){
-    //    Last.push(H.give_harc(i));
-    //}
+    H.set_visited(true, u.get_var());
     H.set_L(u.get_var(), l);
     if(l == wahr){
         H.set_AD(u.get_var(), H.get_FS()[u.get_var()]);
@@ -131,11 +127,14 @@ var Deduce(HG& H, var u, bel l){
         if (H.get_hgraph()[a].give_harc1().size()>2){
             H.get_hgraph()[a].set_V(H.get_hgraph()[a].get_V()-1);
             if(H.get_hgraph()[a].get_V() == 1 && H.get_hgraph()[a].Last(H.get_visited()) != 0){
-                var last = H.get_vars()[H.get_hgraph()[a].Last(H.get_visited())];
+                var last = H.get_vars()[H.get_hgraph()[a].Last(H.get_visited())-1];
                 var w = H.root(H.get_hgraph()[a].give_harc1());
+                if(last.get_var() == 0){
+                    return w; 
+                }
                 std::vector<harc> ADw = H.get_AD(w.get_var());
-                std::vector<int> Tail = {last.get_var()};
-                std::vector<int> Head = {w.get_var()};
+                std::vector<int> Head = {last.get_var()};
+                std::vector<int> Tail = {w.get_var()};
                 harc shrink(Tail, Head, H.get_hgraph().size());
                 ADw.push_back(shrink);
                 H.get_hgraph().push_back(shrink);           //möglicherweise FS und BS aktualisieren?
@@ -166,6 +165,7 @@ var Deduce(HG& H, var u, bel l){
             }
             if(H.get_L()[v.get_var()] == null){
                 H.set_P(v.get_var(), u.get_var());
+                Deduce(H, v, tvalue(v, h));
             }
             else if(H.get_L()[v.get_var()] != tvalue(v, h)){
                 return v;
@@ -201,81 +201,74 @@ bool Restriction(HG P){
 }
 
 bool Relaxation(HG H){
-    return true;
-    /*
-    std::vector<bel> L = H.get_belegung();
+    H.set_for_relaxation();
     std::vector<std::vector<bel>> B;
     std::vector<bel> bi = {wahr, falsch};
-    std::vector<var> S;
-    H.set_V();
-    for(int i=0; i<H.variables(); i++){
+    std::vector<int> S = H.get_S();
+    H.set_for_relaxation();
+    for(int i=0; i<H.variables()+1; i++){
             B.push_back(bi);
-            if(H.get_belegung()[i] == null && i > 0){
-                S.push_back(H.get_vars()[i]);
-            }
         }
-    while(S.size() != 0){
-        var u = S[0];
+    while(S.size() != 0){                                       //Step 1
+        std::cout << S.size() << std::endl;
+        int u = S[0];
         S.erase(S.begin());
-        bool skip = false;
-        std::vector<bel> Deduceu;
-        for(bel l : B[u.get_var()]){
-            std::vector<bel> altbelegung = H.get_belegung();
-            H.set_L(L);
+        bool skip_step3 = false;
+        int deduce_reps = 0;
+        std::vector<std::vector<bel>> Deduceu;
+        for(bel l : B[u]){                                      //Step 2
             var v = Deduce(H, u, l);
-            Deduceu.push_back(H.get_belegung()[u.get_var()]);
+            Deduceu.push_back(H.get_L());
+            deduce_reps += 1;
             if (v.get_var() != 0){
-                H.set_valuesT1();                               //Theorem 1
-                skip = true;
+                H.set_valuesT1(v);                              
+                skip_step3 = true;
             }
             else{
-                L = H.get_belegung();
-                H.set_belegung(altbelegung);
-                for(int i=0; i<B.size(); i++){
-                    //std::cout << i << std::endl;
-                    for(int j=0; j<B[i].size(); j++){
-                        if(B[i][j] == L[i]){
-                            B[i].erase(B[i].begin()+j);
+                for(int i=0; i<H.get_visited().size(); i++){
+                    if(H.get_visited()[i] == true){
+                        for(int j=0; j<B[i].size(); j++){
+                            if(B[i][j] == H.get_L()[u]){
+                                B[i].erase(B[i].begin()+j);
+                            }
                         }
                     }
                 }
-                if(B[u.get_var()].size() == 1){
-                    skip = true;
+            }
+        }
+
+        bool skip_step4 = false;                                //Step 3
+        if(skip_step3 == false && deduce_reps == 2){        
+            for(int i=0; i<Deduceu[0].size(); i++){
+                if(Deduceu[0] != Deduceu[1]){
+                    H.set_L(i, null);
                 }
             }
         }
-        if(skip == false){
-            if(Deduceu[0] == Deduceu[1]){
-                H.set_belegung(u.get_var(), Deduceu[0]);          //Property 1
+        else{
+            skip_step4 == true;
+        }
+
+        if(skip_step4 == false){                               //Step 4
+            bool contradiction = H.SimplifyUR();               //contradiction ist false falls es eine gibt  
+            H.print();
+            if(contradiction == false){
+                return false;
             }
-        }
-        bool contradiction = H.SimplifyUR();           //contradiction == true heißt es gibt keine
-        if(contradiction == false){
-            return false;
-        
-        }
-        std::vector<bel> belegung = H.get_belegung();
-        for(int i=0; i<belegung.size(); i++){
-            if(belegung[i] != null){
-                for(int l=0; l<S.size(); l++){
-                    if(S[l].get_var() == i){
-                        S.erase(S.begin()+l);
+            else{
+                for(int i=1; i<H.variables()+1; i++){
+                    if(H.get_L()[i] != null){
+                        for(int j=0; j<S.size(); j++){
+                            if(S[j] == i){
+                                S.erase(S.begin()+j);
+                            }
+                        }
                     }
                 }
             }
         }
     }
     return true;
-    //*/
-}
-
-harc shrink(HG H, int a, var w, int pos){
-    H = H.binary();
-    var u = H.shrink(H.get_hgraph()[a].give_harc1());
-    std::vector<int> Head = {u.get_var()};
-    std::vector<int> Tail = {w.get_var()};
-    harc as(Head, Tail, pos);
-    return as;
 }
 
 bel tvalue(var u, harc a){
