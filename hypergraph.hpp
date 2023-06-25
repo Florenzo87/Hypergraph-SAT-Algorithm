@@ -44,7 +44,7 @@ class HG{
         std::vector<std::vector<harc>>& get_FS();
         std::vector<std::vector<harc>>& get_BS();
         void set_L(std::vector<bel> vec);
-        void set_L(int u, bel l);
+        bool set_L(int u, bel l);
         std::vector<bel> get_L();
         void set_AD(int u, std::vector<harc>);
         std::vector<harc> get_AD(int u);
@@ -55,6 +55,8 @@ class HG{
         void set_for_relaxation();
         std::vector<int> get_S();
         void set_V();
+        int get_harcs();
+        void set_values_Deduce();
     private:
         std::vector<harc> hgraph;                                            //HG ist ein Vektor aus der klasse Clause
         std::vector<bel> belegung;                                         //als vector von int 0,1,2 mit 2 als noch nicht belegt/gleichzeitig wahr und falsch, die erste Stelle entspricht keiner Variable und wird evtl. für der depth der besetzte Variablen benutzt
@@ -72,4 +74,5 @@ class HG{
         std::vector<std::vector<harc>> AD;
         std::vector<bool> visited;
         std::vector<int> S;
+        std::vector<bool> feste_Werte;                      //Werte die durch Theorem 1 oder Property 1 gesetzt wurden;
 };

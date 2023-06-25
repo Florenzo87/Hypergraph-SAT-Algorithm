@@ -14,15 +14,15 @@ bool DPL(HG H);
 var Deduce(HG& H, var u, bel l);
 bool Restriction(HG P);
 bool Relaxation(HG H);
-harc shrink(HG H, harc a, var w);
 bel tvalue(var u, harc a);
 void print(const std::vector<bel>& vec);
+void print(const std::vector<bool>& vec);
 
 
 int main(int argc, char** argv){
     HG H(argv[1]);
     //H.print();
-    H.printFSBS();
+    //H.printFSBS();
     bool loesbar = DPL(H);
     std::cout << loesbar << std::endl;
     return 0;
@@ -126,20 +126,21 @@ var Deduce(HG& H, var u, bel l){
         }
         if (H.get_hgraph()[a].give_harc1().size()>2){
             H.get_hgraph()[a].set_V(H.get_hgraph()[a].get_V()-1);
-            if(H.get_hgraph()[a].get_V() == 1 && H.get_hgraph()[a].Last(H.get_visited()) != 0){
-                var last = H.get_vars()[H.get_hgraph()[a].Last(H.get_visited())-1];
+            if(H.get_hgraph()[a].get_V() == 1){
                 var w = H.root(H.get_hgraph()[a].give_harc1());
-                if(last.get_var() == 0){
+                if(H.get_hgraph()[a].Last(H.get_visited()) == 0){
                     return w; 
                 }
+                var last = H.get_vars()[H.get_hgraph()[a].Last(H.get_visited())-1];
                 std::vector<harc> ADw = H.get_AD(w.get_var());
                 std::vector<int> Head = {last.get_var()};
                 std::vector<int> Tail = {w.get_var()};
-                harc shrink(Tail, Head, H.get_hgraph().size());
+                harc shrink(Tail, Head, H.get_harcs());
+                //std::cout << w.get_var() << " " << last.get_var() << std::endl;
                 ADw.push_back(shrink);
                 H.get_hgraph().push_back(shrink);           //möglicherweise FS und BS aktualisieren?
-                H.get_FS()[last.get_var()].push_back(shrink);
-                H.get_BS()[w.get_var()].push_back(shrink);
+                H.get_FS()[w.get_var()].push_back(shrink);
+                H.get_BS()[last.get_var()].push_back(shrink);
                 H.set_AD(w.get_var(), ADw);
                 H.increase_harcs();
             }
@@ -210,13 +211,13 @@ bool Relaxation(HG H){
             B.push_back(bi);
         }
     while(S.size() != 0){                                       //Step 1
-        std::cout << S.size() << std::endl;
         int u = S[0];
         S.erase(S.begin());
         bool skip_step3 = false;
         int deduce_reps = 0;
         std::vector<std::vector<bel>> Deduceu;
         for(bel l : B[u]){                                      //Step 2
+            H.set_values_Deduce();
             var v = Deduce(H, u, l);
             Deduceu.push_back(H.get_L());
             deduce_reps += 1;
@@ -238,10 +239,13 @@ bool Relaxation(HG H){
         }
 
         bool skip_step4 = false;                                //Step 3
-        if(skip_step3 == false && deduce_reps == 2){        
+        if(skip_step3 == false && deduce_reps == 2){    
             for(int i=0; i<Deduceu[0].size(); i++){
-                if(Deduceu[0] != Deduceu[1]){
-                    H.set_L(i, null);
+                if(Deduceu[0][i] != Deduceu[1][i]){
+                    if(H.set_L(i, null) == false){              //Property 1
+                        std::cout << "Different L " << i << std::endl;
+                        return false;
+                    }
                 }
             }
         }
@@ -250,9 +254,12 @@ bool Relaxation(HG H){
         }
 
         if(skip_step4 == false){                               //Step 4
+            //H.print();
+            //std::cout << "Deduce Unit Resolution" << std::endl;
             bool contradiction = H.SimplifyUR();               //contradiction ist false falls es eine gibt  
-            H.print();
+            //std::cout << "a" << std::endl;
             if(contradiction == false){
+                H.print();
                 return false;
             }
             else{
@@ -292,3 +299,11 @@ void print(const std::vector<bel>& vec){
         }
         std::cout << std::endl;
 }
+
+void print(const std::vector<bool>& vec){                               
+        for(int i = 0; i < int(vec.size()); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
+}
+

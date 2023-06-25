@@ -189,21 +189,16 @@ std::vector<var> HG::give_harc_as_vec(int i) const{
 var HG::root(std::vector<int> h){
      int limit = h.size();
      std::queue<int> q;
-     std::vector<bool> checked;
-     for(int i=0; i<var_num+1; i++){
-          checked.push_back(false);
+     for(var & v : vars){
+          v.set_value(0);
      }
      for(int i : h){
           q.push(i);
           vars[i].set_value(vars[i].get_value()+1);
-          checked[i] = true;
      }
      while(q.empty() == false){
           int a = q.front();
-          if(checked[Predecessor[a]] == false){
-               q.push(Predecessor[a]);
-               checked[Predecessor[a]] = true;
-          }
+          q.push(Predecessor[a]);
           vars[a].set_value(vars[a].get_value()+1);
           if(vars[a].get_value() == limit){
                return vars[a];
@@ -356,10 +351,7 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
-                    if(hgraph[i].give_harc2()[1][0] == 0){
-                         return false;
-                    }
-                    std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
+                    //std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
                          return false;
@@ -367,10 +359,7 @@ bool HG::SimplifyUR(){
                     i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
-                    if(hgraph[i].give_harc2()[0][0] == 0){
-                         return false;
-                    }
-                    std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
+                    //std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
                          return false;
@@ -538,8 +527,12 @@ void HG::set_L(std::vector<bel> vec){
      L = vec;
 }
 
-void HG::set_L(int u, bel l){
+bool HG::set_L(int u, bel l){
+     if(u == var_num or u == var_num-1){
+          return false;
+     }
      L[u] = l;
+     return true;
 }
 
 std::vector<bel> HG::get_L(){
@@ -582,6 +575,8 @@ void HG::set_for_relaxation(){
           L.push_back(null);
           visited.push_back(false);
      }
+     L[var_num] = wahr;
+     L[var_num-1] = falsch;
      S = {};
      std::vector<bool> Sbool;
      for(int i=0; i<var_num+1; i++){
@@ -602,4 +597,19 @@ void HG::set_for_relaxation(){
 
 std::vector<int> HG::get_S(){
      return S;
+}
+
+int HG::get_harcs(){
+     return harcs;
+}
+
+void HG::set_values_Deduce(){
+     Predecessor = {};
+     AD = {};
+     for(int i=0; i<var_num+1; i++){
+          Predecessor.push_back(i);
+          std::vector<harc> empty;
+          AD.push_back(empty);
+     }
+     set_V();
 }
