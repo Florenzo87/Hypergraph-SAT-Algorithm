@@ -13,9 +13,9 @@ class HG{
         bool verify() const;                                                //uberprüft ob die Belegung richtig ist
         bool verify_strict();                                               //striktes verify, d.h. null/nicht gesetzt/2 zählt nicht als pauschal wahr sondern pauschal falsch
         void set_belegung(const std::vector<bel>& neubelegung);             //Belegung ändern zu den gegebenen Vektor
-        std::vector<bel> get_belegung() const;                              //gibt Belegung zurück (die durch die Branchings definiert wurde)
+        std::vector<bel>const & get_belegung() const;                              //gibt Belegung zurück (die durch die Branchings definiert wurde)
         bool empty();                                                       //gibt an ob der HG leer ist               
-        var root(std::vector <int> h);                                      //findet den root einer Gruppe an Variablen (durch deren indexes angegeben) durch benutzen der Predecessor Funktion
+        var root(std::vector<int> h);                                      //findet den root einer Gruppe an Variablen (durch deren indexes angegeben) durch benutzen der Predecessor Funktion
         bool Branching_True(int p);                                         //setzt die variable mit den gegebenen Index auf true und vereinfacht entsprechend den HG
         bool Branching_False(int p);                                        //setzt die variable mit den gegebenen Index auf false und vereinfacht entsprechend den HG
         bool SimplifyUR();                                                  //unit resolution, wirft false zurück falls diese zu eine contradiction führt
@@ -26,22 +26,21 @@ class HG{
         int minimal_harc();                                                 //findet die größe des kleinsten harcs, bzw. k für die branching Rule
         std::vector<int> branching_var(int k);                              //gibt die branching variable nach Rule 1
         std::vector<float> branching_var2(int k);                           //gibt die branching Variable nach Rule 2
-        std::vector<var> get_vars();                                        //get und set Funktion sollen hoffentlich offentsichtilich sein bei beachten der untere Beschreibung der Elemente
+        std::vector<var>& get_vars();                                        //get und set Funktion sollen hoffentlich offentsichtilich sein bei beachten der untere Beschreibung der Elemente
         std::vector<harc>& get_hgraph();
         int variables() const;  //bzw. get_var_num()
         int get_harcs();
         std::vector<std::vector<harc>>& get_FS();
         std::vector<std::vector<harc>>& get_BS();
-        void set_P(var v, var u);
-        var get_P(var v);
-        void set_L(std::vector<bel> vec);
+        void set_P(int v, int u);
+        void set_L(std::vector<bel> & vec);
         bool set_L(int u, bel l);
-        std::vector<bel> get_L();
-        void set_AD(int u, std::vector<harc>);
-        std::vector<harc> get_AD(int u);
-        std::vector<bool> get_visited();
+        std::vector<bel> const & get_L();
+        void set_AD(int u, std::vector<harc>& h);
+        std::vector<harc> const & get_AD(int u);
+        std::vector<bool>const & get_visited();
         void set_visited(bool l, int u);
-        std::vector<int> get_S();
+        std::vector<int> const & get_S();
         void set_V();
         void increase_harcs();
         void set_for_relaxation();

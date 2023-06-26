@@ -252,6 +252,7 @@ bool Relaxation(HG H){
                         for(int j=0; j<B[i].size(); j++){
                             if(B[i][j] == H.get_L()[u]){
                                 B[i].erase(B[i].begin()+j);
+                                j -= 1;
                             }
                         }
                     }
@@ -288,15 +289,13 @@ bool Relaxation(HG H){
                 return false;
             }
             else{
-                for(int i=1; i<H.variables()+1; i++){
-                    if(H.get_L()[i] != null){
-                        for(int j=0; j<S.size(); j++){
-                            if(S[j] == i){
-                                S.erase(S.begin()+j);
-                            }
-                        }
-                    }
+                std::vector<int> S_after_deleting{};
+                for (int const variable_index : S) {
+                   if (H.get_L()[variable_index] == null) {
+                      S_after_deleting.push_back(variable_index);
+                   }
                 }
+                std::swap(S, S_after_deleting);
             }
         }
     }

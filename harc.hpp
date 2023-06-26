@@ -15,10 +15,10 @@ class harc{
         std::vector<std::vector<int>> give_harc2() const;
         std::vector<int> give_harc1() const;
         std::vector<int> give_harc1neg() const;
-        void push_Head(std::vector<int>);
-        void push_Tail(std::vector<int>);
-        void set_Head(std::vector<int>);
-        void set_Tail(std::vector<int>);
+        void push_Head(std::vector<int> const & vec);
+        void push_Tail(std::vector<int> const & vec);
+        void set_Head(std::vector<int> const & vec);
+        void set_Tail(std::vector<int> const & vec);
         int size();
         void set_V(int i);
         int get_V();
@@ -26,7 +26,7 @@ class harc{
         void set_pos(int i);
         void remove_nor(int p);
         void remove_neg(int p);
-        int Last(std::vector<bool> visited);
+        int Last(std::vector<bool> const & visited);
     private:
         std::vector<int> Head;                                              //Head des harcs, durch den index im HG
         std::vector<int> Tail;                                              //Tail des harcs

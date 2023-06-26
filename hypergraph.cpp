@@ -28,12 +28,11 @@ HG::HG(const std::string filename){
           }
           var_num += 2;
           for (int i=0; i < var_num+1; i++){
-               std::vector<harc> empty;
-               FS.push_back(empty);
-               BS.push_back(empty);
+               FS.push_back({});
+               BS.push_back({});
                belegung.push_back(null);
                Predecessor.push_back(i);
-               AD.push_back(empty);
+               AD.push_back({});
                L.push_back(null);
                Sb.push_back(0);
                Sf.push_back(0);
@@ -184,7 +183,7 @@ void HG::set_belegung(const std::vector<bel>& neubelegung){       //ändert die 
      belegung = neubelegung;
 }
 
-std::vector<bel> HG::get_belegung() const{                       //wirft der aktuelle Belegung zurück
+std::vector<bel>const & HG::get_belegung() const{                       //wirft der aktuelle Belegung zurück
      return belegung;
 }
 
@@ -270,12 +269,10 @@ bool HG::Branching_True(int p){
           }
      }
      for(int i=0; i<FS.size(); i++){              //hier werden die FS und BS updated da sie sonst nicht übereinstimmen
-          std::vector<harc> empty;
-          FS[i] = empty;
+          FS[i] = {};
      }
      for(int i=0; i<BS.size(); i++){
-          std::vector<harc> empty;
-          BS[i] = empty;
+          BS[i] = {};
      }
      for(harc & h : hgraph){
           //h.print();
@@ -335,12 +332,10 @@ bool HG::Branching_False(int p){
      }
      
      for(int i=0; i<FS.size(); i++){
-          std::vector<harc> empty;
-          FS[i] = empty;
+          FS[i] = {};
      }
      for(int i=0; i<BS.size(); i++){
-          std::vector<harc> empty;
-          BS[i] = empty;
+          BS[i] = {};
      }
      for(harc & h : hgraph){
           for(int n : h.give_harc2()[0]) { 
@@ -387,15 +382,11 @@ bool HG::SimplifyUR(){
      return true;
 }
 
-void HG::set_P(var v, var u){
-     Predecessor[v.get_var()] = u.get_var();
+void HG::set_P(int v, int u){
+     Predecessor[v] = u;
 }
 
-var HG::get_P(var v){
-     return Predecessor[v.get_var()];
-}
-
-std::vector<var> HG::get_vars(){
+std::vector<var>& HG::get_vars(){
      return vars;
 }
 
@@ -504,8 +495,7 @@ std::vector<int> HG::branchingFT(){
           }
           q.pop();
      }
-     std::vector<int> empty;
-     return empty;
+     return {};
 }
 
 std::vector<int> HG::branching_var(int k){
@@ -622,7 +612,7 @@ std::vector<std::vector<harc>>& HG::get_BS(){
      return BS;
 }
 
-void HG::set_L(std::vector<bel> vec){
+void HG::set_L(std::vector<bel> & vec){
      L = vec;
 }
 
@@ -634,15 +624,15 @@ bool HG::set_L(int u, bel l){
      return true;
 }
 
-std::vector<bel> HG::get_L(){
+std::vector<bel> const & HG::get_L(){
      return L;
 }
 
-void HG::set_AD(int u, std::vector<harc> vec){
+void HG::set_AD(int u, std::vector<harc>& vec){
      AD[u] = vec;
 }
         
-std::vector<harc> HG::get_AD(int u){
+std::vector<harc> const & HG::get_AD(int u){
      return AD[u];
 }
 
@@ -650,7 +640,7 @@ std::vector<harc>& HG::get_hgraph(){
      return hgraph;
 } 
 
-std::vector<bool> HG::get_visited(){
+std::vector<bool>const & HG::get_visited(){
      return visited;
 }
         
@@ -669,8 +659,7 @@ void HG::set_for_relaxation(){
      visited = {};
      for(int i=0; i<var_num+1; i++){
           Predecessor.push_back(i);
-          std::vector<harc> empty;
-          AD.push_back(empty);
+          AD.push_back({});
           L.push_back(null);
           visited.push_back(false);
      }
@@ -694,7 +683,7 @@ void HG::set_for_relaxation(){
      set_V();
 }
 
-std::vector<int> HG::get_S(){
+std::vector<int> const & HG::get_S(){
      return S;
 }
 
@@ -707,8 +696,7 @@ void HG::set_values_Deduce(){
      AD = {};
      for(int i=0; i<var_num+1; i++){
           Predecessor.push_back(i);
-          std::vector<harc> empty;
-          AD.push_back(empty);
+          AD.push_back({});
      }
      set_V();
 }

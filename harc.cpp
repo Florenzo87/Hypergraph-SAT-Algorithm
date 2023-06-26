@@ -95,23 +95,23 @@ std::vector<int> harc::give_harc1neg() const{          //same as previous but wi
     return vec;
 }
 
-void harc::push_Head(std::vector<int> vec){
+void harc::push_Head(std::vector<int>const & vec) {
     for(int i=0; i<vec.size(); i++){
         Head.push_back(vec[i]);
     }
 }
 
-void harc::push_Tail(std::vector<int> vec){
+void harc::push_Tail(std::vector<int>const & vec){
     for(int i=0; i<vec.size(); i++){
         Tail.push_back(vec[i]);
     }
 }
 
-void harc::set_Head(std::vector<int> vec){
+void harc::set_Head(std::vector<int>const & vec){
     Head = vec;
 }
 
-void harc::set_Tail(std::vector<int> vec){
+void harc::set_Tail(std::vector<int>const & vec){
     Tail = vec;
 }
 
@@ -154,7 +154,7 @@ void harc::remove_neg(int p){
     }
 }
 
-int harc::Last(std::vector<bool> visited){
+int harc::Last(std::vector<bool>const & visited){
     for(int i : Head){
         if(visited[i] == false){
             //std::cout << i << std::endl;
