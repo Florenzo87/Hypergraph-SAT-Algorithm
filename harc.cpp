@@ -154,26 +154,6 @@ void harc::remove_neg(int p){
     }
 }
 
-bool harc::active(){
-    return activated;
-}
-
-void harc::deactivate(){
-    activated = false;
-}
-
-void harc::set_unused(){
-    unused = true;
-}
-
-void harc::set_used(){
-    unused = false;
-}
-
-bool harc::get_unused(){
-    return unused;
-}
-
 int harc::Last(std::vector<bool> visited){
     for(int i : Head){
         if(visited[i] == false){

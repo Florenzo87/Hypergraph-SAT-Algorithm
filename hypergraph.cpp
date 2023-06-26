@@ -26,8 +26,6 @@ HG::HG(const std::string filename){
                          break;
                     }
           }
-          F = var(var_num+1); //sie werden zu zwei weniger da wir var_num vergrößern
-          T = var(var_num+2);
           var_num += 2;
           for (int i=0; i < var_num+1; i++){
                std::vector<harc> empty;
@@ -45,64 +43,67 @@ HG::HG(const std::string filename){
           for (int i=1; i < var_num+1; i++){
                vars.push_back(var(i));
           }
-          //vars.push_back(F); eigentlich schon addiert oben
-          //vars.push_back(T);
           int clausel = 0;
+          std::vector<int> head = {};
+          std::vector<int> tail = {};
+          std::vector<int> FSv = {};
+          std::vector<int> BSv = {};
           while ( getline (myfile,line) ){
-               std::vector<int> head = {};
-               std::vector<int> tail = {};
-               std::vector<int> FSv = {};
-               std::vector<int> BSv = {};
-               std::vector<int> harcs_der_variable_v = {};
                std::istringstream is(line);
                int n;
+               //std::cout << clausel << std::endl;
                while( is >> n ) {
                     if (n != 0){
-                              if (n>0){
-                              bool add = true;
-                              for(int i=0; i<head.size(); i++){
-                                   if(head[i] == n){
-                                        add = false;
-                                   }
+                         //std::cout << n << std::endl;
+                         if (n>0){
+                         bool add = true;
+                         for(int i=0; i<head.size(); i++){
+                              if(head[i] == n){
+                                   add = false;
                               }
-                              if(add == true){
-                                   head.push_back(n);
-                                   BSv.push_back(n);
+                         }
+                         if(add == true){
+                              head.push_back(n);
+                              BSv.push_back(n);
+                         }
+                         }
+                         else{
+                         bool add = true;
+                         for(int i=0; i<tail.size(); i++){
+                              if(tail[i] == n){
+                                   add = false;
                               }
-                              
-                              }
-                              else{
-                              bool add = true;
-                              for(int i=0; i<tail.size(); i++){
-                                   if(tail[i] == n){
-                                        add = false;
-                                   }
-                              }
-                              if(add == true){
-                                   tail.push_back(-n);
-                                   FSv.push_back(-n);
-                              }
-                              }   
+                         }
+                         if(add == true){
+                              tail.push_back(-n);
+                              FSv.push_back(-n);
+                         }
+                         }   
                     }
-               }
-               if(head.size() == 0){
-                    head.push_back(var_num-1);
-                    BSv.push_back(var_num-1);
-               }
-               if(tail.size() == 0){
-                    tail.push_back(var_num);
-                    FSv.push_back(var_num);
-               }
-               harc cls = harc(tail, head, clausel);
-               for (int v : FSv){
-                    FS[v].push_back(cls);
-               }
-               for (int v : BSv){
-                    BS[v].push_back(cls);
-               }
-               hgraph.push_back(cls);
-               clausel += 1;    
-
+                    if(n == 0){
+                         if(head.size() == 0){
+                              head.push_back(var_num-1);
+                              BSv.push_back(var_num-1);
+                         }
+                         if(tail.size() == 0){
+                              tail.push_back(var_num);
+                              FSv.push_back(var_num);
+                         }
+                         harc cls = harc(tail, head, clausel);
+                         for (int v : FSv){
+                              FS[v].push_back(cls);
+                         }
+                         for (int v : BSv){
+                              BS[v].push_back(cls);
+                         }
+                         hgraph.push_back(cls);
+                         clausel += 1;
+                         head = {};
+                         tail = {};
+                         FSv = {};
+                         BSv = {};
+                    }
+               }    
           }
           myfile.close();
           for(int u=1; u<Sb.size(); u++){
@@ -183,19 +184,6 @@ void HG::set_belegung(const std::vector<bel>& neubelegung){       //ändert die 
      belegung = neubelegung;
 }
 
-void HG::set_belegung(const int pos, const bel val){                   //ändert der Wert der Belegung an der gegebene Stelle zum gegebenen Wert
-     belegung[pos] = val;
-}
-
-void HG::set_belegung(const int pos){                            //ändert der Wert der Belegung an der gegebenen Stelle zum entgegengesetztes Wert, 0->1 1->0 2->2
-     if(belegung[pos] == falsch){
-               belegung[pos] = wahr;
-     }
-     if(belegung[pos] == wahr){
-               belegung[pos] = falsch;
-     }
-}
-
 std::vector<bel> HG::get_belegung() const{                       //wirft der aktuelle Belegung zurück
      return belegung;
 }
@@ -204,28 +192,11 @@ int HG::variables() const{                                       //wirft der Anz
      return var_num;
 }
 
-int HG::num_harcs() const{
-     return harcs;
-}
-
 bool HG::empty(){
     if(hgraph.size() == 0){
           return true;
     }
     return false;
-}
-
-harc& HG::give_harc(int i) {
-     return hgraph[i];
-}
-
-std::vector<var> HG::give_harc_as_vec(int i) const{
-     std::vector<int> vec1 = hgraph[i].give_harc1();
-     std::vector<var> vec2;
-     for(int i = 0; i<vec1.size(); i++){
-          vec2.push_back(var(vec1[i]));
-     }
-     return vec2;
 }
 
 var HG::root(std::vector<int> h){
@@ -307,11 +278,14 @@ bool HG::Branching_True(int p){
           BS[i] = empty;
      }
      for(harc & h : hgraph){
-          for(int n : h.give_harc2()[0]) { 
-               FS[n].push_back(h);
+          //h.print();
+          for(int i=0; i < h.give_harc2()[0].size(); i++) {
+               //std::cout << "Tail" << h.get_pos() << " " << h.give_harc2()[0][i] << std::endl;
+               FS[h.give_harc2()[0][i]].push_back(h);
           }
-          for(int n : h.give_harc2()[1]) { 
-               BS[n].push_back(h);
+          for(int i=0; i < h.give_harc2()[1].size(); i++) {
+               //std::cout << "Head" << h.get_pos() << " " << h.give_harc2()[1][i] << std::endl; 
+               BS[h.give_harc2()[1][i]].push_back(h);
           }  
      }
      return true;
@@ -448,10 +422,6 @@ void HG::set_valuesT1(var v){
           }
      }
 }
-        
-void HG::set_valuesP1(){
-
-}
 
 bool HG::Restriction(){
      std::vector<bool> A = Bbranching(var_num-1);
@@ -498,9 +468,6 @@ std::vector<bool> HG::Bbranching(int i){
 }
 
 std::vector<int> HG::branchingFT(){
-     for(harc & h : hgraph){
-          h.set_unused();
-     }
      int i = var_num-1;
      std::queue<int> q;
      q.push(i);

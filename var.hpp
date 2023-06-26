@@ -12,7 +12,6 @@ class var{
     int get_var() const;
 
     private:
-    int variable;
-    int value;
-    bool visited;
+    int variable;                                   //Identifier der Variable
+    int value;                                      //value für den root  
 };

@@ -12,10 +12,10 @@
 #include "hypergraph.hpp"
 
 bool DPL(HG H);
-var Deduce(HG& H, var u, bel l);
+var Deduce(HG& H, var const & u, bel const & l);
 bool Restriction(HG P);
 bool Relaxation(HG H);
-bel tvalue(var u, harc a);
+bel tvalue(var const & u, harc const & a);
 void print(const std::vector<bel>& vec);
 void print(const std::vector<bool>& vec);
 
@@ -127,7 +127,7 @@ bool DPL(HG H){
     return false;
 }
 
-var Deduce(HG& H, var u, bel l){
+var Deduce(HG& H, var const & u, bel const & l){
     H.set_visited(true, u.get_var());
     H.set_L(u.get_var(), l);
     if(l == wahr){
@@ -263,6 +263,12 @@ bool Relaxation(HG H){
         if(skip_step3 == false && deduce_reps == 2){    
             for(int i=0; i<Deduceu[0].size(); i++){
                 if(Deduceu[0][i] == Deduceu[1][i]){
+                    if(i == H.variables() && Deduceu[0][i] != true){
+                        return false;
+                    }
+                    if(i == H.variables()-1 && Deduceu[0][i] != false){
+                        return false;
+                    }
                     L_prev[i] = Deduceu[0][i];
                 }
             }
@@ -297,7 +303,7 @@ bool Relaxation(HG H){
     return true;
 }
 
-bel tvalue(var u, harc a){
+bel tvalue(var const & u, harc const & a){
     bel val = null;
     for(var v : a.give_harc2()[0]){
         if(v.get_var() == u.get_var()){
