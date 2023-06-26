@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stack>
 #include <queue>
+#include <chrono>
 #include "hypergraph.hpp"
 
 bool DPL(HG H);
@@ -23,8 +24,12 @@ int main(int argc, char** argv){
     HG H(argv[1]);
     //H.print();
     //H.printFSBS();
+    auto start = std::chrono::high_resolution_clock::now();
     bool loesbar = DPL(H);
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << loesbar << std::endl;
+    std::cout << "time: " << duration.count() << "ms" << std::endl;
     return 0;
 }
 
@@ -54,16 +59,16 @@ bool DPL(HG H){
                 return true;
             }
             if(Relaxation(P) == true){
-                std::cout << "Relaxation is true" << std::endl;
+                //std::cout << "Relaxation is true" << std::endl;
                 if(Restriction(P) == true){
                     std::cout << "Restriction is true" << std::endl;
                     return true;
                 }
-                std::cout << "Restriction is false" << std::endl;
+                //std::cout << "Restriction is false" << std::endl;
                 int k = P.minimal_harc();
-                std::cout << "k=" << k << std::endl;
+                //std::cout << "k=" << k << std::endl;
                 int p = P.branching_var(k);
-                std::cout << "p=" << p << std::endl;
+                //std::cout << "p=" << p << std::endl;
                 HG PT = P;
                 HG PF = P;
                 bool t = PT.Branching_True(p);
@@ -73,13 +78,13 @@ bool DPL(HG H){
                         Q.push(PT);
                     }
                     else{
-                        std::cout << "true branching failed" << std::endl;
+                        //std::cout << "true branching failed" << std::endl;
                     }
                     if(f == true){
                         Q.push(PF);
                     }
                     else{
-                        std::cout << "false branching failed" << std::endl;
+                        //std::cout << "false branching failed" << std::endl;
                     }
                 }
                 else{
@@ -87,22 +92,22 @@ bool DPL(HG H){
                         Q.push(PF);
                     }
                     else{
-                        std::cout << "false branching failed" << std::endl;
+                        //std::cout << "false branching failed" << std::endl;
                     }
                     if(t == true){
                         Q.push(PT);
                     }
                     else{
-                        std::cout << "true branching failed" << std::endl;
+                        //std::cout << "true branching failed" << std::endl;
                     }
                 }
             }
             else{
-                std::cout << "Relaxation failed" << std::endl;
+                //std::cout << "Relaxation failed" << std::endl;
             }
         }
         else{
-            std::cout << "Unit Resolution failed" << std::endl;
+            //std::cout << "Unit Resolution failed" << std::endl;
         }
     }
     return false;
@@ -216,8 +221,10 @@ bool Relaxation(HG H){
         bool skip_step3 = false;
         int deduce_reps = 0;
         std::vector<std::vector<bel>> Deduceu;
+        std::vector<bel> L_prev = H.get_L();
         for(bel l : B[u]){                                      //Step 2
             H.set_values_Deduce();
+            H.set_L(L_prev);
             var v = Deduce(H, u, l);
             Deduceu.push_back(H.get_L());
             deduce_reps += 1;
@@ -241,13 +248,11 @@ bool Relaxation(HG H){
         bool skip_step4 = false;                                //Step 3
         if(skip_step3 == false && deduce_reps == 2){    
             for(int i=0; i<Deduceu[0].size(); i++){
-                if(Deduceu[0][i] != Deduceu[1][i]){
-                    if(H.set_L(i, null) == false){              //Property 1
-                        std::cout << "Different L " << i << std::endl;
-                        return false;
-                    }
+                if(Deduceu[0][i] == Deduceu[1][i]){
+                    L_prev[i] = Deduceu[0][i];
                 }
             }
+            H.set_L(L_prev);
         }
         else{
             skip_step4 == true;
@@ -259,7 +264,7 @@ bool Relaxation(HG H){
             bool contradiction = H.SimplifyUR();               //contradiction ist false falls es eine gibt  
             //std::cout << "a" << std::endl;
             if(contradiction == false){
-                H.print();
+                //H.print();
                 return false;
             }
             else{

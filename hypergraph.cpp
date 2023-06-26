@@ -368,7 +368,7 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
-                    std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
+                    //std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
                          return false;
@@ -376,7 +376,7 @@ bool HG::SimplifyUR(){
                     i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
-                    std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
+                    //std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
                          return false;
@@ -402,14 +402,25 @@ std::vector<var> HG::get_vars(){
 
 void HG::set_valuesT1(var v){
      int i = v.get_var();
+     std::vector<bool> besuche;
+     for(int v=0; v<var_num+1; v++){
+          besuche.push_back(false);
+     }
      while(Predecessor[i] != i){
           if(L[i] == wahr){
                L[i] = falsch;
+               besuche[i] = true;
           }
           else if(L[i] == falsch){
                L[i] = wahr;
+               besuche[i] = true;
           }
           i = Predecessor[i];
+     }
+     for(int v=0; v<var_num+1; v++){
+          if(besuche[v] == false){
+               L[v] == null;
+          }
      }
 }
         

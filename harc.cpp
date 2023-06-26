@@ -177,16 +177,16 @@ bool harc::get_unused(){
 int harc::Last(std::vector<bool> visited){
     for(int i : Head){
         if(visited[i] == false){
-            std::cout << i << std::endl;
+            //std::cout << i << std::endl;
             return i;
         }
     }
     for(int i : Tail){
         if(visited[i] == false){
-            std::cout << i << std::endl;
+            //std::cout << i << std::endl;
             return i;
         }
     }
-    std::cout << "none found" << std::endl;
+    //std::cout << "none found" << std::endl;
     return 0;
 }
