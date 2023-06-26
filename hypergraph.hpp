@@ -40,7 +40,8 @@ class HG{
         std::vector<bool> Bbranching(int i);
         std::vector<int> branchingFT();
         bool Restriction();
-        int branching_var(int k);
+        std::vector<int> branching_var(int k);
+        std::vector<float> branching_var2(int k);
         std::vector<std::vector<harc>>& get_FS();
         std::vector<std::vector<harc>>& get_BS();
         void set_L(std::vector<bel> vec);
@@ -75,4 +76,7 @@ class HG{
         std::vector<bool> visited;
         std::vector<int> S;
         std::vector<bool> feste_Werte;                      //Werte die durch Theorem 1 oder Property 1 gesetzt wurden;
+        std::vector<float> Sb;
+        std::vector<float> Sf;
+        
 };

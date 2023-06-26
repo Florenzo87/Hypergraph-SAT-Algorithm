@@ -67,39 +67,53 @@ bool DPL(HG H){
                 //std::cout << "Restriction is false" << std::endl;
                 int k = P.minimal_harc();
                 //std::cout << "k=" << k << std::endl;
-                int p = P.branching_var(k);
+                std::vector<int> branch_var = P.branching_var(k);
+                int p = branch_var[0];
+                float Fk = branch_var[1];
+                float Bk = branch_var[2];
                 //std::cout << "p=" << p << std::endl;
                 HG PT = P;
                 HG PF = P;
                 bool t = PT.Branching_True(p);
                 bool f = PF.Branching_False(p);
                 if(k>2){
-                    if(t == true){
-                        Q.push(PT);
+                    if(Bk > Fk){
+                        if(t == true){
+                            Q.push(PT);
+                        }
+                        if(f == true){
+                            Q.push(PF);
+                        }
                     }
                     else{
-                        //std::cout << "true branching failed" << std::endl;
+                        if(f == true){
+                            Q.push(PF);
+                        }
+                        if(t == true){
+                            Q.push(PT);
+                        }
                     }
-                    if(f == true){
-                        Q.push(PF);
+                }
+                else if(k == 2){
+                    if(Bk > Fk){
+                        if(f == true){
+                            Q.push(PF);
+                        }
+                        if(t == true){
+                            Q.push(PT);
+                        }
                     }
                     else{
-                        //std::cout << "false branching failed" << std::endl;
+                        if(t == true){
+                            Q.push(PT);
+                        }
+                        if(f == true){
+                            Q.push(PF);
+                        }
                     }
                 }
                 else{
-                    if(f == true){
-                        Q.push(PF);
-                    }
-                    else{
-                        //std::cout << "false branching failed" << std::endl;
-                    }
-                    if(t == true){
-                        Q.push(PT);
-                    }
-                    else{
-                        //std::cout << "true branching failed" << std::endl;
-                    }
+                    std::cout << "error" << std::endl;
                 }
             }
             else{
@@ -143,7 +157,7 @@ var Deduce(HG& H, var u, bel l){
                 harc shrink(Tail, Head, H.get_harcs());
                 //std::cout << w.get_var() << " " << last.get_var() << std::endl;
                 ADw.push_back(shrink);
-                H.get_hgraph().push_back(shrink);           //möglicherweise FS und BS aktualisieren?
+                H.get_hgraph().push_back(shrink);
                 H.get_FS()[w.get_var()].push_back(shrink);
                 H.get_BS()[last.get_var()].push_back(shrink);
                 H.set_AD(w.get_var(), ADw);

@@ -37,6 +37,8 @@ HG::HG(const std::string filename){
                Predecessor.push_back(i);
                AD.push_back(empty);
                L.push_back(null);
+               Sb.push_back(0);
+               Sf.push_back(0);
           }
           belegung[var_num] = wahr;
           belegung[var_num-1] = falsch;
@@ -46,63 +48,86 @@ HG::HG(const std::string filename){
           //vars.push_back(F); eigentlich schon addiert oben
           //vars.push_back(T);
           int clausel = 0;
-          while ( getline (myfile,line) )
-          {
-                    std::vector<int> head = {};
-                    std::vector<int> tail = {};
-                    std::vector<int> FSv = {};
-                    std::vector<int> BSv = {};
-                    std::vector<int> harcs_der_variable_v = {};
-                    std::istringstream is(line);
-                    int n;
-                    while( is >> n ) {
-                         if (n != 0){
-                                if (n>0){
-                                   bool add = true;
-                                   for(int i=0; i<head.size(); i++){
-                                        if(head[i] == n){
-                                             add = false;
-                                        }
+          while ( getline (myfile,line) ){
+               std::vector<int> head = {};
+               std::vector<int> tail = {};
+               std::vector<int> FSv = {};
+               std::vector<int> BSv = {};
+               std::vector<int> harcs_der_variable_v = {};
+               std::istringstream is(line);
+               int n;
+               while( is >> n ) {
+                    if (n != 0){
+                              if (n>0){
+                              bool add = true;
+                              for(int i=0; i<head.size(); i++){
+                                   if(head[i] == n){
+                                        add = false;
                                    }
-                                   if(add == true){
-                                        head.push_back(n);
-                                        BSv.push_back(n);
+                              }
+                              if(add == true){
+                                   head.push_back(n);
+                                   BSv.push_back(n);
+                              }
+                              
+                              }
+                              else{
+                              bool add = true;
+                              for(int i=0; i<tail.size(); i++){
+                                   if(tail[i] == n){
+                                        add = false;
                                    }
-                                   
-                                }
-                                else{
-                                   bool add = true;
-                                   for(int i=0; i<tail.size(); i++){
-                                        if(tail[i] == n){
-                                             add = false;
-                                        }
-                                   }
-                                   if(add == true){
-                                        tail.push_back(-n);
-                                        FSv.push_back(-n);
-                                   }
-                                }   
-                         }
+                              }
+                              if(add == true){
+                                   tail.push_back(-n);
+                                   FSv.push_back(-n);
+                              }
+                              }   
                     }
-                    if(head.size() == 0){
-                         head.push_back(var_num-1);
-                         BSv.push_back(var_num-1);
-                    }
-                    if(tail.size() == 0){
-                         tail.push_back(var_num);
-                         FSv.push_back(var_num);
-                    }
-                    harc cls = harc(tail, head, clausel);
-                    for (int v : FSv){
-                         FS[v].push_back(cls);
-                    }
-                    for (int v : BSv){
-                         BS[v].push_back(cls);
-                    }
-                    hgraph.push_back(cls);
-                    clausel += 1;                      
+               }
+               if(head.size() == 0){
+                    head.push_back(var_num-1);
+                    BSv.push_back(var_num-1);
+               }
+               if(tail.size() == 0){
+                    tail.push_back(var_num);
+                    FSv.push_back(var_num);
+               }
+               harc cls = harc(tail, head, clausel);
+               for (int v : FSv){
+                    FS[v].push_back(cls);
+               }
+               for (int v : BSv){
+                    BS[v].push_back(cls);
+               }
+               hgraph.push_back(cls);
+               clausel += 1;    
+
           }
           myfile.close();
+          for(int u=1; u<Sb.size(); u++){
+               float beta = 6;
+               float mu = 0;
+               for(harc h : hgraph){
+                    if(h.size() > 2){
+                         mu += h.size()*std::pow(2,-h.size());
+                    }
+               }
+               float Sbu = 0;
+               for(harc h : BS[u]){
+                    if(h.size() > 2){
+                         Sbu += std::pow(2, -h.size());
+                    }
+               }
+               Sb[u] = (beta/mu)*Sbu;
+               float Sfu = 0;
+               for(harc h : FS[u]){
+                    if(h.size() > 2){
+                         Sfu += std::pow(2, -h.size());
+                    }
+               }
+               Sf[u] = (beta/mu)*Sfu;
+          }
      }
 
      else std::cout << "Unable to open file"; 
@@ -516,9 +541,11 @@ std::vector<int> HG::branchingFT(){
      return empty;
 }
 
-int HG::branching_var(int k){
+std::vector<int> HG::branching_var(int k){
      int max = 0;
      int p = 0;
+     int FSkp = 0;
+     int BSkp = 0;
      for(int i=1; i<var_num-1; i++){
           int FSk = 0;
           int BSk = 0;
@@ -537,9 +564,86 @@ int HG::branching_var(int k){
           if(W >= max){
                max = W;
                p = i;
+               FSkp = FSk;
+               BSkp = BSk;
           }
      }
-     return p;
+     std::vector<int> vec;
+     vec.push_back(p);
+     vec.push_back(FSkp);
+     vec.push_back(BSkp);
+     return vec;
+}
+
+std::vector<float> HG::branching_var2(int k){
+     float max = 0;
+     int p = 0;
+     float Bkp;
+     float Fkp;
+     std::vector<float> fk;
+     std::vector<float> f2;
+     std::vector<float> bk;
+     std::vector<float> b2;
+     fk.push_back(0);
+     f2.push_back(0);
+     bk.push_back(0);
+     b2.push_back(0);
+     for(int i=1; i<var_num-1; i++){
+          fk.push_back(Sf[i]);
+          f2.push_back(Sf[i]);
+          bk.push_back(Sf[i]);
+          b2.push_back(Sf[i]);
+     }
+     for(int i=1; i<var_num-1; i++){
+          for(harc a : FS[i]){
+               if (a.size() == k){
+                    fk[i] += fk[i]+1;
+               }
+               if (a.size() == 2){
+                    f2[i] += f2[i]+1;
+               }
+          }
+          for(harc a : BS[i]){
+               if (a.size() == k){
+                    bk[i] += bk[i]+1;
+               }
+               if (a.size() == 2){
+                    b2[i] += b2[i]+1;
+               }
+          }
+     }
+     for(int i=1; i<var_num-1; i++){
+          float Fku = fk[i];
+          float Bku = bk[i];
+          for(harc h : FS[i]){
+               if(h.size() == 2 && h.give_harc2()[1][0] != var_num){
+                    Fku += f2[h.give_harc2()[1][0]];
+               }
+               if(h.size() == 3 && h.give_harc2()[1][0] == var_num){
+                    Fku += b2[h.give_harc2()[0][1]];
+               }
+          }
+          for(harc h : FS[i]){
+               if(h.size() == 2 && h.give_harc2()[0][0] != var_num-1){
+                    Bku += b2[h.give_harc2()[0][0]];
+               }
+               if(h.size() == 3 && h.give_harc2()[0][0] == var_num-1){
+                    Bku += f2[h.give_harc2()[1][1]];
+               }
+          }
+          float alpha = 1.5;
+          float W = Fku + Bku + alpha*(std::min(Fku, Bku));
+          if(W > max){
+               p = i;
+               Bkp = Bku;
+               Fkp = Fku;
+          }
+     }
+     std::vector<float> vec;
+     vec.push_back(p);
+     vec.push_back(Fkp);
+     vec.push_back(Bkp);
+     return vec;
 }
 
 std::vector<std::vector<harc>>& HG::get_FS(){
