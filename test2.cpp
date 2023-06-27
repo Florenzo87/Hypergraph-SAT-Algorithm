@@ -201,18 +201,25 @@ bool Restriction(HG P){
         std::vector<int> h = P.branchingFT();
         for(int j=0; j<h.size(); j++){
             HG Pi = P;
+            bool push = true;
             for(int i=0; i<j; i++){
-                Pi.Branching_False(h[i]);
+                if(Pi.Branching_False(h[i]) == false){
+                    push = false;
+                }
             }
-            Pi.Branching_True(h[j]);
-            problems.push(Pi);
+            if(Pi.Branching_True(h[j]) == false){
+                push = false;
+            }
+            if(push == true){
+                problems.push(Pi);
+            }
         }
     }
     else{
         return true;
     }
     while(problems.empty() == false){
-        if(problems.front().Restriction() == true){
+        if(Restriction(problems.front()) == true){
             return true;
         }
         problems.pop();
