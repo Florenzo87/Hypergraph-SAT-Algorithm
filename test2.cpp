@@ -18,11 +18,12 @@ bool Relaxation(HG H);
 bel tvalue(var const & u, harc const & a);
 void print(const std::vector<bel>& vec);
 void print(const std::vector<bool>& vec);
+void print(const std::vector<int>& vec);
 
 
 int main(int argc, char** argv){
     HG H(argv[1]);
-    //H.print();
+    H.print();
     //H.printFSBS();
     auto start = std::chrono::high_resolution_clock::now();
     bool loesbar = DPL(H);
@@ -62,6 +63,9 @@ bool DPL(HG H){
                 //std::cout << "Relaxation is true" << std::endl;
                 if(Restriction(P) == true){
                     std::cout << "Restriction is true" << std::endl;
+                    print(P.get_belegung());
+                    H.set_belegung(P.get_belegung());
+                    std::cout << H.verify_strict() << std::endl;
                     return true;
                 }
                 //std::cout << "Restriction is false" << std::endl;
@@ -197,8 +201,8 @@ var Deduce(HG& H, var const & u, bel const & l){
 
 bool Restriction(HG P){
     std::queue<HG> problems;
-    if(P.Restriction() == false){
-        std::vector<int> h = P.branchingFT();
+    std::vector<int> h = P.Restriction();
+    if(h.size() != 0){
         for(int j=0; j<h.size(); j++){
             HG Pi = P;
             bool push = true;
@@ -219,7 +223,7 @@ bool Restriction(HG P){
         return true;
     }
     while(problems.empty() == false){
-        if(Restriction(problems.front()) == true){
+        if(problems.front().Restriction().size() == 0){
             return true;
         }
         problems.pop();
@@ -332,6 +336,13 @@ void print(const std::vector<bel>& vec){
 }
 
 void print(const std::vector<bool>& vec){                               
+        for(int i = 0; i < int(vec.size()); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
+}
+
+void print(const std::vector<int>& vec){                               
         for(int i = 0; i < int(vec.size()); i++){
                 std::cout << vec[i] << " ";
         }

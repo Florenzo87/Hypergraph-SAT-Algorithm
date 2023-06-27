@@ -414,15 +414,83 @@ void HG::set_valuesT1(var v){
      }
 }
 
-bool HG::Restriction(){
-     std::vector<bool> A = Bbranching(var_num-1);
-     if(A[var_num] == true){
-          return true;
-     }
-     return false;
+void HG::print(const std::vector<int>& vec){                               
+        for(int i = 0; i < int(vec.size()); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
 }
 
-std::vector<bool> HG::Bbranching(int i){
+void HG::print(const std::vector<bool>& vec){                               
+        for(int i = 0; i < int(vec.size()); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
+}
+
+std::vector<int> HG::Restriction(){
+     std::vector<int> A = Bbranching(var_num);
+     if(A.size() != 0){
+          return A;
+     }
+     return {};
+}
+
+
+
+std::vector<int> HG::Bbranching(int i){
+     std::queue<int> q;
+     q.push(i);
+     std::vector<bool> besucht;
+     for(int i=0; i<var_num+1; i++){
+          besucht.push_back(false);
+     }
+     besucht[i] = true;
+     std::vector<bool> besuchtharc;
+     for(int i=0; i<harcs; i++){
+          besuchtharc.push_back(false);
+     }
+     while(q.empty() == false){
+          //std::cout <<"FS size:" << FS[q.front()].size() << std::endl;
+          for(int h=0; h<FS[q.front()].size(); h++){
+               harc a = FS[q.front()][h];
+               //std::cout << "hyperarch " << a.get_pos() << " " << besuchtharc[a.get_pos()] << std::endl;
+               if(besuchtharc[a.get_pos()] == false){
+                    bool tailbesucht = true;
+                    for(int i=0; i<a.give_harc2()[0].size(); i++){
+                         //std::cout << "variable " << a.give_harc2()[0][i] << std::endl;
+                         if(besucht[a.give_harc2()[0][i]] == false){
+                              tailbesucht = false;
+                         }
+                    }
+                    //std::cout << "tailbesucht " << tailbesucht << std::endl;
+                    if(tailbesucht == true){
+                         besuchtharc[a.get_pos()] = true;
+                         for(int i=0; i<a.give_harc2()[1].size(); i++){
+                              if(a.give_harc2()[1][i] == var_num-1){
+                                   //std::cout << "abesuchte Knoten: ";
+                                   //print(besucht);
+                                   return a.give_harc2()[0];
+                              }
+                              besucht[a.give_harc2()[1][i]] = true;
+                              //std::cout << "push " << a.give_harc2()[1][i] << std::endl;
+                              q.push(a.give_harc2()[1][i]);
+                         }
+                         h = 0;
+                    }
+               }
+          }
+          //std::cout << "qpop" << q.front() << std::endl;
+          q.pop();
+     }
+     //std::cout << "besuchte Knoten: ";
+     //print(besucht);
+     return {};
+}
+
+/*
+std::vector<int> HG::branchingFT(){
+     int i = var_num;
      std::queue<int> q;
      q.push(i);
      std::vector<bool> besucht;
@@ -435,59 +503,24 @@ std::vector<bool> HG::Bbranching(int i){
      }
      while(q.empty() == false){
           for(harc a : FS[q.front()]){
+               std::cout << a.get_pos() << std::endl;
                if(besuchtharc[a.get_pos()] == false){
                     bool tailbesucht = true;
-                    for(var v : a.give_harc2()[0]){
-                         if(besucht[v.get_var()] == false){
+                    for(int i=0; i<a.give_harc2()[0].size(); i++){
+                         std::cout << a.give_harc2()[0][i] << std::endl;
+                         if(besucht[a.give_harc2()[0][i]] == false){
                               tailbesucht = false;
                          }
                     }
                     if(tailbesucht == true){
                          besuchtharc[a.get_pos()] == true;
-                         for(int i : a.give_harc2()[1]){
-                              if(besucht[i] == false){
-                                   besucht[i] = true;
-                                   q.push(i);
-                              }
-                         }
-                    }
-               }
-          }
-          q.pop();
-     }
-     return besucht;
-}
-
-std::vector<int> HG::branchingFT(){
-     int i = var_num-1;
-     std::queue<int> q;
-     q.push(i);
-     std::vector<bool> besucht;
-     for(int i=0; i<var_num+1; i++){
-          besucht.push_back(false);
-     }
-     std::vector<bool> besuchtharc;
-     for(int i=0; i<harcs; i++){
-          besuchtharc.push_back(false);
-     }
-     while(q.empty() == false){
-          for(harc a : FS[q.front()]){
-               if(besuchtharc[a.get_pos()] == false){
-                    besuchtharc[a.get_pos()] == true;
-                    bool tailbesucht = true;
-                    for(var v : a.give_harc2()[0]){
-                         if(besucht[v.get_var()] == false){
-                              tailbesucht = false;
-                         }
-                    }
-                    if(tailbesucht == true){
-                         for(int i : a.give_harc2()[1]){
-                              if(besucht[i] == false){
-                                   if(i == var_num){
+                         for(int i=0; i<a.give_harc2()[1].size(); i++){
+                              if(besucht[a.give_harc2()[1][i]] == false){
+                                   if(a.give_harc2()[1][i] == var_num-1){
                                         return a.give_harc2()[0];
                                    }
-                                   besucht[i] = true;
-                                   q.push(i);
+                                   besucht[a.give_harc2()[1][i]] = true;
+                                   q.push(besucht[a.give_harc2()[1][i]]);
                               }
                          }
                     }
@@ -497,6 +530,7 @@ std::vector<int> HG::branchingFT(){
      }
      return {};
 }
+*/
 
 std::vector<int> HG::branching_var(int k){
      int max = 0;

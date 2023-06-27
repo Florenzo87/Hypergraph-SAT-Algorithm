@@ -19,9 +19,9 @@ class HG{
         bool Branching_True(int p);                                         //setzt die variable mit den gegebenen Index auf true und vereinfacht entsprechend den HG
         bool Branching_False(int p);                                        //setzt die variable mit den gegebenen Index auf false und vereinfacht entsprechend den HG
         bool SimplifyUR();                                                  //unit resolution, wirft false zurück falls diese zu eine contradiction führt
-        bool Restriction();                                                 //Wrapper funktion für die restriction die den B-branchins aufruft
-        std::vector<bool> Bbranching(int i);                                //macht einen B-Branching aus der Variable mit den gegeben index und gibt ein bool vektor der angibt welche variablenm besucht wurden zuruck
-        std::vector<int> branchingFT();                                     //gibt den harc unmittelbar vor T bei einem B-branching aus F
+        std::vector<int> Restriction();                                                 //Wrapper funktion für die restriction die den B-branchins aufruft
+        std::vector<int> Bbranching(int i);                                //macht einen B-Branching aus der Variable mit den gegeben index und gibt ein bool vektor der angibt welche variablenm besucht wurden zuruck
+        //std::vector<int> branchingFT();                                     //gibt den harc unmittelbar vor T bei einem B-branching aus F
         void set_valuesT1(var v);                                           //setzt die Werte der Predecessors der gegebene Variable entsprechend zum Theorem 1                             
         int minimal_harc();                                                 //findet die größe des kleinsten harcs, bzw. k für die branching Rule
         std::vector<int> branching_var(int k);                              //gibt die branching variable nach Rule 1
@@ -45,6 +45,8 @@ class HG{
         void increase_harcs();
         void set_for_relaxation();
         void set_values_Deduce();
+        void print(const std::vector<int>& vec);
+        void print(const std::vector<bool>& vec);
     private:
         std::vector<harc> hgraph;                                           //hgraph entaltet alle harcs im hypergraph
         std::vector<bel> belegung;                                          //Vektor der enum Klasse bel die angibt ob es ein Branching zu die entsprechende variable gemacht wurde(bzw. was für einen)
