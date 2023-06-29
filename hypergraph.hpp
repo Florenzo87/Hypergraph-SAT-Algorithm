@@ -24,7 +24,7 @@ class HG{
         //std::vector<int> branchingFT();                                     //gibt den harc unmittelbar vor T bei einem B-branching aus F
         void set_valuesT1(var v);                                           //setzt die Werte der Predecessors der gegebene Variable entsprechend zum Theorem 1                             
         int minimal_harc();                                                 //findet die größe des kleinsten harcs, bzw. k für die branching Rule
-        std::vector<int> branching_var(int k);                              //gibt die branching variable nach Rule 1
+        std::vector<float> branching_var(int k);                              //gibt die branching variable nach Rule 1
         std::vector<float> branching_var2(int k);                           //gibt die branching Variable nach Rule 2
         std::vector<var>& get_vars();                                        //get und set Funktion sollen hoffentlich offentsichtilich sein bei beachten der untere Beschreibung der Elemente
         std::vector<harc>& get_hgraph();
@@ -45,6 +45,7 @@ class HG{
         void increase_harcs();
         void set_for_relaxation();
         void set_values_Deduce();
+        void print(const std::vector<float>& vec);
         void print(const std::vector<int>& vec);
         void print(const std::vector<bool>& vec);
     private:

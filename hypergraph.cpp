@@ -50,10 +50,8 @@ HG::HG(const std::string filename){
           while ( getline (myfile,line) ){
                std::istringstream is(line);
                int n;
-               //std::cout << clausel << std::endl;
                while( is >> n ) {
                     if (n != 0){
-                         //std::cout << n << std::endl;
                          if (n>0){
                          bool add = true;
                          for(int i=0; i<head.size(); i++){
@@ -105,14 +103,16 @@ HG::HG(const std::string filename){
                }    
           }
           myfile.close();
+          float mu = 0;
+          for(harc h : hgraph){
+               if(h.size() > 2){
+                    mu += h.size()*std::pow(2,-h.size());
+               }
+          }
+          float vars = var_num;
+          mu *= (1/vars);
           for(int u=1; u<Sb.size(); u++){
                float beta = 6;
-               float mu = 0;
-               for(harc h : hgraph){
-                    if(h.size() > 2){
-                         mu += h.size()*std::pow(2,-h.size());
-                    }
-               }
                float Sbu = 0;
                for(harc h : BS[u]){
                     if(h.size() > 2){
@@ -132,6 +132,13 @@ HG::HG(const std::string filename){
 
      else std::cout << "Unable to open file"; 
 
+}
+
+void HG::print(const std::vector<float>& vec){                               
+        for(int i = 0; i < vec.size(); i++){
+                std::cout << vec[i] << " ";
+        }
+        std::cout << std::endl;
 }
 
 void HG::print() const{
@@ -179,15 +186,15 @@ bool HG::verify_strict(){
      return true;
 }
 
-void HG::set_belegung(const std::vector<bel>& neubelegung){       //ändert die Belegung zum gegebenen Vektor, Achtung muss die richtige Länge haben
+void HG::set_belegung(const std::vector<bel>& neubelegung){
      belegung = neubelegung;
 }
 
-std::vector<bel>const & HG::get_belegung() const{                       //wirft der aktuelle Belegung zurück
+std::vector<bel>const & HG::get_belegung() const{
      return belegung;
 }
 
-int HG::variables() const{                                       //wirft der Anzahl an Variablen zurück
+int HG::variables() const{
      return var_num;
 }
 
@@ -235,7 +242,7 @@ bool HG::Branching_True(int p){
      for(harc & h : BS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph.erase(hgraph.begin()+i);         //erfüllte clauseln entfernen 
+                    hgraph.erase(hgraph.begin()+i);
                     break;
                }
           }
@@ -243,14 +250,14 @@ bool HG::Branching_True(int p){
      for(harc & h : FS[var_index]){
           for(int i=0; i<hgraph.size(); i++){
                if(hgraph[i].get_pos() == h.get_pos()){
-                    hgraph[i].remove_neg(var_index);        //gelöschte variable aus unerfüllte Klauseln entfernen
+                    hgraph[i].remove_neg(var_index);
                     break;
                }
           }
      }
      for(int i=0; i<hgraph.size(); i++){
           if(hgraph[i].size() == 0){
-               return false;                           // Die Idee bei die return false ist, das falls dieser Fall vorkommt dann ist ein solcher Branching illegal, da keine Variablen bleiben die die Klausel erfüllen könnten
+               return false;
           }
           else{
                if(hgraph[i].give_harc2()[0].size() == 0){
@@ -268,20 +275,17 @@ bool HG::Branching_True(int p){
                }
           }
      }
-     for(int i=0; i<FS.size(); i++){              //hier werden die FS und BS updated da sie sonst nicht übereinstimmen
+     for(int i=0; i<FS.size(); i++){
           FS[i] = {};
      }
      for(int i=0; i<BS.size(); i++){
           BS[i] = {};
      }
      for(harc & h : hgraph){
-          //h.print();
           for(int i=0; i < h.give_harc2()[0].size(); i++) {
-               //std::cout << "Tail" << h.get_pos() << " " << h.give_harc2()[0][i] << std::endl;
                FS[h.give_harc2()[0][i]].push_back(h);
           }
           for(int i=0; i < h.give_harc2()[1].size(); i++) {
-               //std::cout << "Head" << h.get_pos() << " " << h.give_harc2()[1][i] << std::endl; 
                BS[h.give_harc2()[1][i]].push_back(h);
           }  
      }
@@ -362,7 +366,6 @@ bool HG::SimplifyUR(){
      for(int i=0; i<hgraph.size(); i++){
           if (hgraph[i].size() == 2){
                if(hgraph[i].give_harc2()[0][0] == var_num){
-                    //std::cout << "Unit Resolution True - " << hgraph[i].give_harc2()[1][0] << std::endl;
                     bool branch = Branching_True(hgraph[i].give_harc2()[1][0]);
                     if(branch == false){
                          return false;
@@ -370,7 +373,6 @@ bool HG::SimplifyUR(){
                     i=0;
                }
                else if(hgraph[i].give_harc2()[1][0] == var_num-1){
-                    //std::cout << "Unit Resolution False - " << hgraph[i].give_harc2()[0][0] << std::endl;
                     bool branch = Branching_False(hgraph[i].give_harc2()[0][0]);
                     if(branch == false){
                          return false;
@@ -451,88 +453,35 @@ std::vector<int> HG::Bbranching(int i){
           besuchtharc.push_back(false);
      }
      while(q.empty() == false){
-          //std::cout <<"FS size:" << FS[q.front()].size() << std::endl;
           for(int h=0; h<FS[q.front()].size(); h++){
                harc a = FS[q.front()][h];
-               //std::cout << "hyperarch " << a.get_pos() << " " << besuchtharc[a.get_pos()] << std::endl;
                if(besuchtharc[a.get_pos()] == false){
                     bool tailbesucht = true;
                     for(int i=0; i<a.give_harc2()[0].size(); i++){
-                         //std::cout << "variable " << a.give_harc2()[0][i] << std::endl;
                          if(besucht[a.give_harc2()[0][i]] == false){
                               tailbesucht = false;
                          }
                     }
-                    //std::cout << "tailbesucht " << tailbesucht << std::endl;
                     if(tailbesucht == true){
                          besuchtharc[a.get_pos()] = true;
                          for(int i=0; i<a.give_harc2()[1].size(); i++){
                               if(a.give_harc2()[1][i] == var_num-1){
-                                   //std::cout << "abesuchte Knoten: ";
-                                   //print(besucht);
                                    return a.give_harc2()[0];
                               }
                               besucht[a.give_harc2()[1][i]] = true;
-                              //std::cout << "push " << a.give_harc2()[1][i] << std::endl;
                               q.push(a.give_harc2()[1][i]);
                          }
                          h = 0;
                     }
                }
           }
-          //std::cout << "qpop" << q.front() << std::endl;
-          q.pop();
-     }
-     //std::cout << "besuchte Knoten: ";
-     //print(besucht);
-     return {};
-}
-
-/*
-std::vector<int> HG::branchingFT(){
-     int i = var_num;
-     std::queue<int> q;
-     q.push(i);
-     std::vector<bool> besucht;
-     for(int i=0; i<var_num+1; i++){
-          besucht.push_back(false);
-     }
-     std::vector<bool> besuchtharc;
-     for(int i=0; i<harcs; i++){
-          besuchtharc.push_back(false);
-     }
-     while(q.empty() == false){
-          for(harc a : FS[q.front()]){
-               std::cout << a.get_pos() << std::endl;
-               if(besuchtharc[a.get_pos()] == false){
-                    bool tailbesucht = true;
-                    for(int i=0; i<a.give_harc2()[0].size(); i++){
-                         std::cout << a.give_harc2()[0][i] << std::endl;
-                         if(besucht[a.give_harc2()[0][i]] == false){
-                              tailbesucht = false;
-                         }
-                    }
-                    if(tailbesucht == true){
-                         besuchtharc[a.get_pos()] == true;
-                         for(int i=0; i<a.give_harc2()[1].size(); i++){
-                              if(besucht[a.give_harc2()[1][i]] == false){
-                                   if(a.give_harc2()[1][i] == var_num-1){
-                                        return a.give_harc2()[0];
-                                   }
-                                   besucht[a.give_harc2()[1][i]] = true;
-                                   q.push(besucht[a.give_harc2()[1][i]]);
-                              }
-                         }
-                    }
-               }
-          }
           q.pop();
      }
      return {};
 }
-*/
 
-std::vector<int> HG::branching_var(int k){
+
+std::vector<float> HG::branching_var(int k){
      int max = 0;
      int p = 0;
      int FSkp = 0;
@@ -550,7 +499,6 @@ std::vector<int> HG::branching_var(int k){
                     BSk += 1;
                }
           }
-          //std::cout << FSk << BSk << std::endl;
           int W = FSk + BSk + (1.5*std::min(BSk, FSk));
           if(W >= max){
                max = W;
@@ -559,7 +507,7 @@ std::vector<int> HG::branching_var(int k){
                BSkp = BSk;
           }
      }
-     std::vector<int> vec;
+     std::vector<float> vec;
      vec.push_back(p);
      vec.push_back(FSkp);
      vec.push_back(BSkp);
@@ -628,6 +576,7 @@ std::vector<float> HG::branching_var2(int k){
                p = i;
                Bkp = Bku;
                Fkp = Fku;
+               max = W;
           }
      }
      std::vector<float> vec;

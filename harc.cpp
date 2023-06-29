@@ -66,14 +66,14 @@ bool harc:: empty(){
     return false;
 }
 
-std::vector<std::vector<int>> harc::give_harc2() const{   // gives harc as the tail and head sepparately
+std::vector<std::vector<int>> harc::give_harc2() const{
     std::vector<std::vector<int>> vec;
     vec.push_back(Tail);
     vec.push_back(Head);
     return vec;
 }
 
-std::vector<int> harc::give_harc1() const{              //gives Tail and Head of harc together, in other words all variables in the harc
+std::vector<int> harc::give_harc1() const{
     std::vector<int> vec;
     for(int i=0; i<Tail.size(); i++){
         vec.push_back(Tail[i]);
@@ -84,7 +84,7 @@ std::vector<int> harc::give_harc1() const{              //gives Tail and Head of
     return vec;
 }
 
-std::vector<int> harc::give_harc1neg() const{          //same as previous but with a minus for the tail, was necessary for a now removed function
+std::vector<int> harc::give_harc1neg() const{
     std::vector<int> vec;
     for(int i=0; i<Tail.size(); i++){
         vec.push_back(-Tail[i]);
@@ -157,16 +157,13 @@ void harc::remove_neg(int p){
 int harc::Last(std::vector<bool>const & visited){
     for(int i : Head){
         if(visited[i] == false){
-            //std::cout << i << std::endl;
             return i;
         }
     }
     for(int i : Tail){
         if(visited[i] == false){
-            //std::cout << i << std::endl;
             return i;
         }
     }
-    //std::cout << "none found" << std::endl;
     return 0;
 }
