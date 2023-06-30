@@ -22,6 +22,9 @@ void print(const std::vector<int>& vec);
 
 
 int main(int argc, char** argv){
+    if(argc == 0){
+        std::cout << "please provide a text document to generate the SAT problem" << std::endl;
+    }
     HG H(argv[1]);
     H.print();
     //H.printFSBS();
@@ -144,9 +147,9 @@ bool Relaxation(HG H){
                 skip_step3 = true;
             }
             else{
-                for(int i=0; i<H.get_visited().size(); i++){
+                for(int i=0; i<int(H.get_visited().size()); i++){
                     if(H.get_visited()[i] == true){
-                        for(int j=0; j<B[i].size(); j++){
+                        for(int j=0; j<int(B[i].size()); j++){
                             if(B[i][j] == H.get_L()[u]){
                                 B[i].erase(B[i].begin()+j);
                                 j -= 1;
@@ -159,7 +162,7 @@ bool Relaxation(HG H){
 
         bool skip_step4 = false;
         if(skip_step3 == false && deduce_reps == 2){
-            for(int i=0; i<Deduceu[0].size(); i++){
+            for(int i=0; i<int(Deduceu[0].size()); i++){
                 if(Deduceu[0][i] == Deduceu[1][i]){
                     if(i == H.variables() && Deduceu[0][i] != true){
                         return false;
@@ -173,7 +176,7 @@ bool Relaxation(HG H){
             H.set_L(L_prev);
         }
         else{
-            skip_step4 == true;
+            skip_step4 = true;
         }
 
         if(skip_step4 == false){
@@ -209,12 +212,12 @@ var Deduce(HG& H, var const & u, bel const & l){
     }
     for(harc h : H.get_AD(u.get_var())){
         int a;
-        for(int i=0; i<H.get_hgraph().size(); i++){
+        for(int i=0; i<int(H.get_hgraph().size()); i++){
             if(h.get_pos() == H.get_hgraph()[i].get_pos()){
                 a = i;
             }
         }
-        if (H.get_hgraph()[a].give_harc1().size()>2){
+        if(H.get_hgraph()[a].give_harc1().size()>2){
             H.get_hgraph()[a].set_V(H.get_hgraph()[a].get_V()-1);
             if(H.get_hgraph()[a].get_V() == 1){
                 var w = H.root(H.get_hgraph()[a].give_harc1());
@@ -240,7 +243,7 @@ var Deduce(HG& H, var const & u, bel const & l){
     }
     for(harc h : H.get_AD(u.get_var())){
         int a;
-        for(int i=0; i<H.get_hgraph().size(); i++){
+        for(int i=0; i<int(H.get_hgraph().size()); i++){
             if(h.get_pos() == H.get_hgraph()[i].get_pos()){
                 a = i;
             }
@@ -270,7 +273,7 @@ bool Restriction(HG P){
     std::queue<HG> problems;                                    
     std::vector<int> h = P.Restriction();                       
     if(h.size() != 0){ 
-        for(int j=0; j<h.size(); j++){
+        for(int j=0; j<int(h.size()); j++){
             HG Pi = P;
             bool push = true;
             for(int i=0; i<j; i++){

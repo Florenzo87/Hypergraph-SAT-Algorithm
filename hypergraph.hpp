@@ -52,6 +52,7 @@ class HG{
         std::vector<harc> hgraph;                                           //hgraph entaltet alle harcs im hypergraph
         std::vector<bel> belegung;                                          //Vektor der enum Klasse bel die angibt ob es ein Branching zu die entsprechende variable gemacht wurde(bzw. was für einen)
         std::vector<var> vars;                                              //vars enthaltet alle Variable die im URSPRÜNGLICHEN hypergraph waren, inklusiv F und T
+        std::vector<bool>removed_vars;                                      //welche Variablen entfernt wurden, nötig für Branching Rule 2
         int var_num;                                                        //Anzahl an Variablen (des ursprünglichen HGs)
         int harcs;                                                          //Anzahl an harcs (die es insgesamt gegeben hat inlusiv gelöschte und geschrumpfte, da man es benutzen will damit keine zwei harcs diesselbe kennungsnummer bekommt)
         std::vector<std::vector<harc>> FS;                                  //Liste Forward Star der Variablen, muss beim löschen eines harcs updated werden da es nur Kopien sind
